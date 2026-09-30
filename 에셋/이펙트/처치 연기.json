@@ -1,0 +1,33 @@
+{
+ "name": "처치 연기",
+ "slot": "처치",
+ "seed": 1,
+ "frames": 14,
+ "size": 40,
+ "fps": 16,
+ "loop": false,
+ "anchor": "bottom",
+ "move": "burst",
+ "emitter": "line",
+ "emitR": 0.4,
+ "chaos": 0.5,
+ "count": 12,
+ "spawn": 0.15,
+ "psize": 5,
+ "sizeLife": "shrink",
+ "shapes": [
+  "circle"
+ ],
+ "speed": 0.45,
+ "gravity": -0.5,
+ "spin": 1,
+ "fade": "out",
+ "fadeStr": 0.8,
+ "palette": "연기",
+ "colors": null,
+ "shades": true,
+ "range": 0.4,
+ "colorLife": true,
+ "outline": true,
+ "glow": false
+}

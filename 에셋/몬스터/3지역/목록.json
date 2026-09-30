@@ -1,0 +1,55 @@
+[
+ {
+  "file": "에셋/몬스터/3지역/고블린 약탈꾼.png",
+  "id": "goblin",
+  "n": "고블린 약탈꾼",
+  "role": "swarm",
+  "scale": 2,
+  "anim": {
+   "kind": "walk"
+  }
+ },
+ {
+  "file": "에셋/몬스터/3지역/전투 멧돼지.png",
+  "id": "warBoar",
+  "n": "전투 멧돼지",
+  "role": "charger",
+  "scale": 2,
+  "anim": {
+   "kind": "walk",
+   "arm": false
+  }
+ },
+ {
+  "file": "에셋/몬스터/3지역/고블린 주술사.png",
+  "id": "shaman",
+  "n": "고블린 주술사",
+  "role": "ranged",
+  "scale": 2,
+  "anim": {
+   "kind": "walk",
+   "arm": false
+  }
+ },
+ {
+  "file": "에셋/몬스터/3지역/오우거.png",
+  "id": "ogre",
+  "n": "오우거",
+  "role": "tank",
+  "scale": 2,
+  "anim": {
+   "kind": "heavy"
+  }
+ },
+ {
+  "file": "에셋/몬스터/3지역/고블린 족장.png",
+  "id": "goblinChief",
+  "n": "고블린 족장",
+  "role": "boss",
+  "scale": 2,
+  "anim": {
+   "kind": "heavy",
+   "arm": false
+  }
+ }
+]

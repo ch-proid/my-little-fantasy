@@ -1,0 +1,71 @@
+[
+ {
+  "file": "에셋/몬스터/7지역/그림자 박쥐.png",
+  "id": "shadowBat",
+  "n": "그림자 박쥐",
+  "role": "swarm",
+  "scale": 2,
+  "fly": 12,
+  "anim": {
+   "kind": "flap",
+   "foot": 4
+  }
+ },
+ {
+  "file": "에셋/몬스터/7지역/그림자 사냥개.png",
+  "id": "shadowHound",
+  "n": "그림자 사냥개",
+  "role": "charger",
+  "scale": 2,
+  "anim": {
+   "kind": "walk",
+   "head": 10,
+   "foot": 17,
+   "arm": false
+  }
+ },
+ {
+  "file": "에셋/몬스터/7지역/그림자 망령.png",
+  "id": "wraith",
+  "n": "그림자 망령",
+  "role": "ranged",
+  "scale": 2,
+  "fly": 8,
+  "anim": {
+   "kind": "flap",
+   "wingBox": [
+    0,
+    6,
+    3,
+    11
+   ],
+   "wingAmp": 1
+  }
+ },
+ {
+  "file": "에셋/몬스터/7지역/빈 갑옷 기사.png",
+  "id": "hollowKnight",
+  "n": "빈 갑옷 기사",
+  "role": "tank",
+  "scale": 2,
+  "anim": {
+   "kind": "heavy",
+   "head": 12,
+   "foot": 26,
+   "arm": false
+  }
+ },
+ {
+  "file": "에셋/몬스터/7지역/그림자 기사왕.png",
+  "id": "shadowKing",
+  "n": "그림자 기사왕",
+  "role": "boss",
+  "scale": 2,
+  "anim": {
+   "kind": "heavy",
+   "head": 14,
+   "foot": 38,
+   "arm": false
+  }
+ }
+]

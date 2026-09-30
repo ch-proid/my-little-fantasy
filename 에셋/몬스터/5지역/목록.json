@@ -1,0 +1,63 @@
+[
+ {
+  "file": "에셋/몬스터/5지역/햇살 정령.png",
+  "id": "sunSprite",
+  "n": "햇살 정령",
+  "role": "swarm",
+  "scale": 2,
+  "fly": 10,
+  "anim": {
+   "kind": "hop",
+   "top": 3
+  }
+ },
+ {
+  "file": "에셋/몬스터/5지역/전갈.png",
+  "id": "scorpion",
+  "n": "전갈",
+  "role": "charger",
+  "scale": 2,
+  "anim": {
+   "kind": "scuttle",
+   "foot": 16,
+   "band": 4
+  }
+ },
+ {
+  "file": "에셋/몬스터/5지역/모래 뱀.png",
+  "id": "sandSnake",
+  "n": "모래 뱀",
+  "role": "ranged",
+  "scale": 2,
+  "anim": {
+   "kind": "hop",
+   "top": 5
+  }
+ },
+ {
+  "file": "에셋/몬스터/5지역/흙 병사.png",
+  "id": "clayGuard",
+  "n": "흙 병사",
+  "role": "tank",
+  "scale": 2,
+  "anim": {
+   "kind": "heavy",
+   "foot": 23,
+   "head": 12,
+   "arm": false
+  }
+ },
+ {
+  "file": "에셋/몬스터/5지역/태양 석상 골렘.png",
+  "id": "sunGolem",
+  "n": "태양 석상 골렘",
+  "role": "boss",
+  "scale": 2,
+  "anim": {
+   "kind": "heavy",
+   "foot": 33,
+   "head": 21,
+   "arm": [18, 33, 9]
+  }
+ }
+]

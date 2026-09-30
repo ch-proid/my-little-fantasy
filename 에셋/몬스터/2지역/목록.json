@@ -1,0 +1,69 @@
+[
+ {
+  "file": "에셋/몬스터/2지역/이끼 통나무 애벌레.png",
+  "id": "logWorm",
+  "n": "이끼 통나무 애벌레",
+  "role": "swarm",
+  "scale": 2,
+  "anim": {
+   "kind": "scuttle",
+   "foot": 10,
+   "band": 2
+  }
+ },
+ {
+  "file": "에셋/몬스터/2지역/포자 반딧불이.png",
+  "id": "sporeFly",
+  "n": "포자 반딧불이",
+  "role": "ranged",
+  "scale": 2,
+  "fly": 10,
+  "anim": {
+   "kind": "flap",
+   "wingBox": [
+    4,
+    12,
+    0,
+    4
+   ],
+   "wingAmp": 1
+  }
+ },
+ {
+  "file": "에셋/몬스터/2지역/녹슨 톱 게.png",
+  "id": "sawCrab",
+  "n": "녹슨 톱 게",
+  "role": "charger",
+  "scale": 2,
+  "anim": {
+   "kind": "scuttle",
+   "foot": 13,
+   "band": 4
+  }
+ },
+ {
+  "file": "에셋/몬스터/2지역/이끼곰.png",
+  "id": "mossBear",
+  "n": "이끼곰",
+  "role": "tank",
+  "scale": 2,
+  "anim": {
+   "kind": "heavy",
+   "top": 3,
+   "foot": 16,
+   "arm": false
+  }
+ },
+ {
+  "file": "에셋/몬스터/2지역/분노한 고목.png",
+  "id": "angryTree",
+  "n": "분노한 고목",
+  "role": "boss",
+  "scale": 2,
+  "anim": {
+   "kind": "heavy",
+   "top": 7,
+   "foot": 21
+  }
+ }
+]

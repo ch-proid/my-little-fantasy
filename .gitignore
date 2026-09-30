@@ -1,0 +1,12 @@
+# 설치하면 다시 생기는 것 (npm install)
+node_modules/
+
+# 개인 설정
+.claude/
+
+# 파일 하나가 GitHub 한도(100MB)를 넘는 영상 레퍼런스
+*.mp4
+
+# 만들어 내는 결과물 (공유용 압축 등)
+공유/
+__pycache__/

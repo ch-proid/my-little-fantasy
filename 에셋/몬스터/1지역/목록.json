@@ -1,0 +1,72 @@
+[
+ {
+  "file": "에셋/몬스터/1지역/새싹 방울.png",
+  "id": "sproutling",
+  "n": "새싹 방울",
+  "role": "swarm",
+  "scale": 2,
+  "anim": {
+   "kind": "hop",
+   "top": 5,
+   "upper": 11
+  }
+ },
+ {
+  "file": "에셋/몬스터/1지역/도토리 꼬마.png",
+  "id": "acornling",
+  "n": "도토리 꼬마",
+  "role": "swarm",
+  "scale": 2,
+  "anim": {
+   "kind": "walk",
+   "head": 11,
+   "foot": 13,
+   "arm": false
+  }
+ },
+ {
+  "file": "에셋/몬스터/1지역/버섯 주술사.png",
+  "id": "mushShaman",
+  "n": "버섯 주술사",
+  "role": "ranged",
+  "scale": 2,
+  "anim": {
+   "kind": "walk",
+   "head": 9,
+   "foot": 15,
+   "arm": false
+  }
+ },
+ {
+  "file": "에셋/몬스터/1지역/이끼 그루터기.png",
+  "id": "mossStump",
+  "n": "이끼 그루터기",
+  "role": "tank",
+  "scale": 2,
+  "anim": {
+   "kind": "heavy",
+   "top": 4,
+   "head": 10,
+   "foot": 17,
+   "arm": [
+    11,
+    17,
+    4
+   ]
+  }
+ },
+ {
+  "file": "에셋/몬스터/1지역/잎사귀 부엉이.png",
+  "id": "leafOwl",
+  "n": "잎사귀 부엉이",
+  "role": "boss",
+  "scale": 2,
+  "fly": 8,
+  "anim": {
+   "kind": "flap",
+   "wing": 4,
+   "wingTop": 2
+  },
+  "flip": true
+ }
+]

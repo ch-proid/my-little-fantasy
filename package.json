@@ -1,0 +1,15 @@
+{
+  "name": "my-little-fantasy",
+  "private": true,
+  "main": "코드/창/main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^44.4.5"
+  },
+  "dependencies": {
+    "galmuri": "^2.40.3",
+    "koffi": "^3.3.2"
+  }
+}

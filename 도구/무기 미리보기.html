@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>무기 미리보기</title>
+<style>
+  :root { --bg: #0f1230; --card: #1a1e44; --line: #2c3266; --text: #eef0ff; --sub: #a9b0d8; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); line-height: 1.55; font-family: "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; }
+  .wrap { max-width: 1560px; margin: 0 auto; padding: 28px 16px 80px; }
+  h1 { margin: 0 0 6px; font-size: 26px; }
+  header p { margin: 4px 0; color: var(--sub); }
+  .bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 16px 0 6px; color: var(--sub); }
+  .seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .seg button { background: transparent; color: var(--sub); border: 0; padding: 6px 12px; font: inherit; font-size: 14px; cursor: pointer; }
+  .seg button.on { background: var(--line); color: var(--text); font-weight: bold; }
+  .note { background: #2a2350; border: 1px solid #4a3f86; border-radius: 10px; padding: 10px 14px; margin: 14px 0; color: #e6ddff; }
+  h2 { margin: 44px 0 4px; font-size: 21px; }
+  h2 + p { margin: 0 0 14px; color: var(--sub); }
+  h3 { margin: 22px 0 10px; font-size: 17px; color: var(--sub); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 600px), 1fr)); gap: 16px; }
+  .grades { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap: 12px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .gcard { display: flex; gap: 12px; padding: 12px; align-items: center; }
+  canvas.view { display: block; width: 100%; height: auto; aspect-ratio: 480 / 110; cursor: zoom-in; background: #0b1a4a; }
+  .info { padding: 12px 14px 14px; display: flex; gap: 12px; align-items: flex-start; }
+  .icon { flex: none; width: 72px; height: 72px; image-rendering: pixelated; border-radius: 8px; border: 2px solid; display: block; }
+  .icon.big { width: 104px; height: 104px; }
+  .name { font-weight: bold; font-size: 17px; }
+  .chip { display: inline-block; font-size: 12px; font-weight: bold; padding: 1px 8px; border-radius: 99px; margin-right: 6px; vertical-align: 2px; color: #14142a; }
+  .skill { margin-top: 3px; font-weight: bold; }
+  .desc { color: var(--sub); font-size: 14px; margin-top: 2px; }
+  .lines { margin: 6px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--sub); }
+  .lines li::before { content: "· "; }
+  .card > .seg { margin: 10px 14px 0; }
+  #modal { position: fixed; inset: 0; background: rgba(6, 8, 24, 0.92); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; z-index: 10; }
+  #modal[hidden] { display: none; }
+  #modal canvas { width: min(96vw, 1440px); height: auto; aspect-ratio: 480 / 110; border-radius: 10px; }
+  #modal p { color: var(--sub); margin: 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>무기 미리보기 · v0.3 검토용</h1>
+    <p>게임의 작은 띠 화면(480×110)과 같은 크기입니다. 용사와 몬스터는 게임 그림을 그대로 씁니다. 그림을 누르면 크게 봅니다.</p>
+    <p>이펙트는 메이플스토리 6차 스킬 영상을 분석해 만들었습니다: 준비 → 터짐 → 연타 → 흩어짐, 세 겹 칼자국(먹 · 원색 · 흰 심지), 섬광과 방사선.</p>
+    <div class="bar">속도
+      <div class="seg" id="speed"><button class="on" data-v="1">1배</button><button data-v="0.5">0.5배</button><button data-v="0.25">0.25배</button></div>
+    </div>
+    <div class="note">유니크와 레전더리는 <b>스킬이 없고 외형만</b> 화려해집니다. 스킬은 <b>판타지아(네임드 무기)</b>에만 있습니다. 피해 숫자와 연출 길이는 임시값입니다.</div>
+  </header>
+
+  <h2>1. 등급과 무기 외형</h2>
+  <p>등급이 오를수록 무기가 커지고 장식이 늘며 모양 자체가 바뀝니다. 레전더리부터는 손에 쥐고 있어도 빛납니다.</p>
+  <div id="g-grade"></div>
+
+  <h2>2. 기본 공격</h2>
+  <p>모든 무기가 가진 공격입니다. 카드 위 단추로 등급을 바꾸면 손에 든 무기가 바뀝니다.</p>
+  <div class="grid" id="g-base"></div>
+
+  <h2>3. 판타지아 · 네임드 무기 (18종)</h2>
+  <p>판타지아만 고유 스킬을 가집니다. 종류마다 6종입니다.</p>
+  <h3>검</h3><div class="grid" id="g-f-sword"></div>
+  <h3>엽총</h3><div class="grid" id="g-f-gun"></div>
+  <h3>완드</h3><div class="grid" id="g-f-wand"></div>
+</div>
+<div id="modal" hidden><canvas></canvas><p>화면을 누르거나 Esc를 누르면 닫힙니다.</p></div>
+<script src="../코드/그림/art.js"></script>
+<script src="../코드/그림/fx.js"></script>
+<script src="../코드/그림/pixfx.js"></script>
+<script src="../코드/그림/pixfx_list.js"></script>
+<script src="../코드/그림/forge.js"></script>
+<script src="../코드/그림/core.js"></script>
+<script src="../코드/스킬/skills_sword.js"></script>
+<script src="../코드/스킬/skills_gun.js"></script>
+<script src="../코드/스킬/skills_wand.js"></script>
+<script src="무기미리보기.js"></script>
+</body>
+</html>

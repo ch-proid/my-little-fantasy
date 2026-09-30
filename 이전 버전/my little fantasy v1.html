@@ -1,0 +1,826 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>꼬마 용사 방치 모험</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: transparent; }
+  body { display: flex; align-items: center; justify-content: center; }
+  canvas { display: block; touch-action: none; image-rendering: crisp-edges; image-rendering: pixelated; }
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<script>
+'use strict';
+
+// =====================================================================
+// 1. 색 토큰 — 모든 색은 여기에만 있다
+// =====================================================================
+const COLORS = {
+  page: '#e9e4f5', white: '#ffffff', outline: '#4a3050', eye: '#3a2440', cheek: '#ff9eb5',
+  shadow: 'rgba(74,48,80,0.22)',
+  // 용사
+  hair: '#ff9f43', hairL: '#ffd08a', skin: '#ffe0c7', tunic: '#4aa8ff', tunicD: '#2f7ee0',
+  leather: '#9a5b3a', blade: '#eef6ff', bladeD: '#a9bdd8',
+  // 금색(포인트)
+  gold: '#ffc83d', goldL: '#fff09a', goldD: '#c98a12', red: '#ff4d5e',
+  // 몬스터
+  slimeG: '#7ee07a', slimeGD: '#46b85a', slimeGL: '#c8ffb8',
+  slimeP: '#ff9ed6', slimePD: '#e56bb3', slimePL: '#ffd6ef',
+  slimeB: '#6fd3ff', slimeBD: '#3aa4e0', slimeBL: '#c9f1ff',
+  slimeF: '#ffa24d', slimeFD: '#ea6f2a', slimeFL: '#ffe0a8',
+  mushR: '#ff5e6c', mushRD: '#d8384f', stem: '#fff1d6', stemD: '#e6caa0',
+  shellO: '#ffb347', shellOD: '#e0862a', shellOL: '#ffe08a',
+  shellV: '#b48cff', shellVD: '#8a63e0', shellVL: '#e2d2ff',
+  snailBody: '#bfe88f', snailBodyD: '#8fcf6a',
+  ghostW: '#f4f7ff', ghostWD: '#c7cdf0', ghostWL: '#ffffff',
+  ghostF: '#ffb3c7', ghostFD: '#f07a9e', ghostFL: '#ffe0ea',
+  golemS: '#a9b8d6', golemSD: '#7c8db3', golemSL: '#dbe5f7',
+  golemL: '#e0735a', golemLD: '#b84f3f', golemLL: '#ffb36b',
+  // 배경 공통
+  cloud: '#ffffff', cloudD: '#e3f1ff', trunk: '#a8704a',
+  // 풀숲
+  skyM1: '#7fd4ff', skyM2: '#9fe0ff', skyM3: '#bfeaff', skyM4: '#dff5ff',
+  hillM1: '#b4ecae', hillM2: '#8fdc84', tree: '#5cc85a', treeD: '#43ad4b', treeL: '#b6f09a',
+  groundMT: '#6fd05f', groundM: '#e0a86e', groundMD: '#c98f58', flower: '#ff8fb8',
+  // 버섯숲
+  skyU1: '#ffb8dc', skyU2: '#ffcce6', skyU3: '#ffdff0', skyU4: '#fff0f7',
+  hillU1: '#e6c6ff', hillU2: '#d0a8f5', capA: '#ff7a8a', capB: '#b98cff',
+  groundUT: '#a4e08e', groundU: '#c49474', groundUD: '#ad7f60', flowerU: '#fff09a',
+  // 호숫가
+  skyL1: '#6fd6ff', skyL2: '#8fe2ff', skyL3: '#b3edff', skyL4: '#d6f7ff',
+  hillL1: '#aee0d0', hillL2: '#86d0b8', water: '#5cc8f0', waterL: '#e0f8ff',
+  reed: '#6cbf5a', reedTip: '#b0703e', groundLT: '#bde58a', groundL: '#f2d99a', groundLD: '#e0c283',
+  // 눈 덮인 산
+  skyS1: '#9cc8ff', skyS2: '#b4d6ff', skyS3: '#cde4ff', skyS4: '#e6f2ff',
+  hillS1: '#d3e0f7', hillS2: '#b3c7ec', snow: '#ffffff', pine: '#4fbf92', pineD: '#3aa37c',
+  groundST: '#ffffff', groundS: '#e3ecfa', groundSD: '#c9d6ee',
+  // 용의 둥지
+  skyD1: '#ffae7a', skyD2: '#ffc394', skyD3: '#ffd8b0', skyD4: '#ffecd0',
+  hillD1: '#f5b89c', hillD2: '#eb9a7e', spire: '#e0876a', spireD: '#c96a55', crystal: '#ffe04d',
+  groundDT: '#ffa15e', groundD: '#dc8062', groundDD: '#c66a50',
+  // UI
+  text: '#ffffff', textDark: '#4a3050', textOff: '#6e6878', stroke: '#4a3050',
+  panel: '#fff4dd', panelEdge: '#e8bf7e', btn: '#ffffff', btnEdge: '#ffc83d',
+  btnOff: '#d7d3dc', btnOffEdge: '#8a8494', up: '#2fae5c', hurt: '#ff6b6b',
+  hpMon: '#ff5e7a', hpHero: '#5ee07a', barBack: '#4a3050', popup: '#fffaf0',
+};
+
+// =====================================================================
+// 2. 밸런스 — 수치와 순수 공식 (sim.js가 이 구간을 그대로 읽는다)
+// =====================================================================
+// ==BAL START==
+const BAL = {
+  monstersPerStage: 10,
+  bossTime: 30,          // 초
+  respawnTime: 1.5,      // 초
+  walkSpeed: 70,         // 픽셀/초
+  spawnGap: 100,         // 몬스터 사이 거리(픽셀)
+  monAtkInterval: 1.2,   // 몬스터 공격 간격(초)
+  healOnKill: 0.3,       // 처치 때 최대 체력의 몇 할 회복
+  critMult: 2.5,
+  monHpBase: 8,   monHpGrowth: 1.18,  bossHpMul: 14,
+  monDmgBase: 2,  monDmgGrowth: 1.11, bossDmgMul: 1.3,
+  monGoldBase: 1, monGoldGrowth: 1.1, bossGoldMul: 5,
+  offlineRate: 0.5, offlineCapSec: 8 * 3600, offlineMinSec: 60,
+  holdDelay: 0.35, holdRepeat: 0.07, saveEvery: 5,
+  // 값 = (base + add*lv) * mul^lv, max가 있으면 넘지 않음. 값 = cost * costGrowth^lv
+  up: {
+    atk:  { base: 6,    add: 0.3,   mul: 1.08, cost: 8,  costGrowth: 1.12 },
+    spd:  { base: 1.0,  add: 0.05,  mul: 1,    cost: 15, costGrowth: 1.35, max: 5 },
+    crit: { base: 0.02, add: 0.015, mul: 1,    cost: 20, costGrowth: 1.3,  max: 0.5 },
+    hp:   { base: 40,   add: 12,    mul: 1.05, cost: 8,  costGrowth: 1.15 },
+    gold: { base: 1,    add: 0.1,   mul: 1.02, cost: 25, costGrowth: 1.22 },
+  },
+};
+const UP_KEYS = ['atk', 'spd', 'crit', 'hp', 'gold'];
+
+function upValue(k, lv) {
+  const u = BAL.up[k];
+  const v = (u.base + u.add * lv) * Math.pow(u.mul, lv);
+  return u.max != null ? Math.min(u.max, v) : v;
+}
+function upCost(k, lv) { const u = BAL.up[k]; return Math.ceil(u.cost * Math.pow(u.costGrowth, lv)); }
+function upMaxed(k, lv) { const u = BAL.up[k]; return u.max != null && upValue(k, lv) >= u.max - 1e-9; }
+function heroStats(lv) {
+  const atk = upValue('atk', lv.atk), aps = upValue('spd', lv.spd), crit = upValue('crit', lv.crit);
+  const hp = Math.round(upValue('hp', lv.hp)), goldMul = upValue('gold', lv.gold);
+  return { atk, aps, crit, hp, goldMul, dps: atk * aps * (1 + crit * (BAL.critMult - 1)) };
+}
+function monHp(stage, boss)   { return Math.ceil(BAL.monHpBase * Math.pow(BAL.monHpGrowth, stage - 1) * (boss ? BAL.bossHpMul : 1)); }
+function monDmg(stage, boss)  { return Math.ceil(BAL.monDmgBase * Math.pow(BAL.monDmgGrowth, stage - 1) * (boss ? BAL.bossDmgMul : 1)); }
+function monGold(stage, boss) { return BAL.monGoldBase * Math.pow(BAL.monGoldGrowth, stage - 1) * (boss ? BAL.bossGoldMul : 1); }
+// 지금 단계에서 일반 몬스터만 잡을 때 초당 금화(자리 비움 보상 추정용)
+function goldPerSec(lv, stage) {
+  const st = heroStats(lv);
+  const hits = Math.ceil(monHp(stage, false) / (st.dps / st.aps));
+  return monGold(stage, false) * st.goldMul / (hits / st.aps + BAL.spawnGap / BAL.walkSpeed);
+}
+// ==BAL END==
+
+// =====================================================================
+// 3. 화면 크기와 그리기 도구
+// =====================================================================
+// ?bar = 작업 표시줄 위 띠 모드: 하늘 없이 투명, 글자는 적게, 강화는 메뉴로
+const BAR = new URLSearchParams(location.search).has('bar');
+const W = 480, H = BAR ? 110 : 270, GROUND_Y = BAR ? 100 : 192, PANEL_Y = BAR ? 20 : 212, HERO_X = 120, PX = 2, REACH = 12;
+const FONT = '"Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif';
+const cv = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+let SCALE = 1;
+
+function fit() {
+  SCALE = Math.max(1, Math.floor(Math.min(innerWidth / W, innerHeight / H)));
+  // 윈도우 화면 배율(125%, 150%…)만큼 더 촘촘히 그려야 글자와 그림이 번지지 않는다
+  const k = SCALE * (devicePixelRatio || 1);
+  cv.width = Math.round(W * k); cv.height = Math.round(H * k);
+  cv.style.width = W * SCALE + 'px'; cv.style.height = H * SCALE + 'px';
+  ctx.setTransform(k, 0, 0, k, 0, 0);
+  ctx.imageSmoothingEnabled = false;
+}
+if (!BAR) document.body.style.background = COLORS.page;
+
+function rect(x, y, w, h, c) { ctx.fillStyle = COLORS[c]; ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); }
+// 모서리 한 칸을 깎은 픽셀 네모
+function rrect(x, y, w, h, c) { rect(x + 1, y, w - 2, h, c); rect(x, y + 1, w, h - 2, c); }
+function box(x, y, w, h, fill, edge) { rrect(x, y, w, h, edge); rrect(x + 1, y + 1, w - 2, h - 2, fill); }
+function txt(s, x, y, size, color, align = 'left', stroke = null) {
+  ctx.font = `bold ${size}px ${FONT}`;
+  ctx.textAlign = align; ctx.textBaseline = 'alphabetic';
+  if (stroke) { ctx.lineWidth = Math.max(2, size / 4); ctx.lineJoin = 'round'; ctx.strokeStyle = COLORS[stroke]; ctx.strokeText(s, x, y); }
+  ctx.fillStyle = COLORS[color]; ctx.fillText(s, x, y);
+}
+const snap = v => Math.round(v / PX) * PX;
+// 2픽셀 격자 동그라미 / 반구 / 세모
+function blob(cx, cy, r, c, top = false) {
+  ctx.fillStyle = COLORS[c]; cx = snap(cx); cy = snap(cy);
+  for (let dy = -r; dy <= (top ? 0 : r - PX); dy += PX) {
+    const w = snap(Math.sqrt(Math.max(0, r * r - (dy + 1) * (dy + 1))));
+    ctx.fillRect(cx - w, cy + dy, w * 2, PX);
+  }
+}
+function tri(cx, top, h, w, c) {
+  ctx.fillStyle = COLORS[c]; cx = snap(cx); top = snap(top);
+  for (let y = 0; y < h; y += PX) { const hw = snap((y + PX) / h * w / 2); ctx.fillRect(cx - hw, top + y, hw * 2, PX); }
+}
+function rnd(i) { let h = Math.imul(i ^ 0x9e3779b9, 0x85ebca6b); h ^= h >>> 13; h = Math.imul(h, 0xc2b2ae35); h ^= h >>> 16; return (h >>> 0) / 4294967296; }
+
+const UNITS = [[1e32, '구'], [1e28, '양'], [1e24, '자'], [1e20, '해'], [1e16, '경'], [1e12, '조'], [1e8, '억'], [1e4, '만'], [1e3, '천']];
+function fmt(n) {
+  if (!isFinite(n)) return '∞';
+  n = Math.floor(n);
+  if (n < 1000) return String(n);
+  for (const [u, s] of UNITS) if (n >= u) { const v = n / u; return (v >= 100 ? Math.floor(v) : Math.floor(v * 10) / 10) + s; }
+}
+
+// =====================================================================
+// 4. 픽셀 그림 — 글자 하나가 한 픽셀, 팔레트가 글자를 색 토큰으로 바꾼다
+// =====================================================================
+const HERO_HEAD = [
+  '....oooooooo....',
+  '..oohhhhhhhhoo..',
+  '.ohhHHhhhhhhhho.',
+  'ohhHhhhhhhhhhhho',
+  'ohhhhhhhhhhhhhho',
+  'ohhhhshhhhhshhho',
+  'ohhsssssssssssso',
+  'ohsssssssessseso',
+  'ohsssssssessseso',
+  '.osssssscsssscso',
+  '...oossssssoo...',
+];
+const HERO_BODY = [
+  '.....otttto.....',
+  '....otTttttos...',
+  '....otTttttoo...',
+  '....obbybbbo....',
+  '....otttttto....',
+];
+const LEGS = {
+  a: ['....oTo..oTo....', '....obo..obo....'],
+  b: ['...oTo....oTo...', '...obo....obo...'],
+  c: ['.....oToTo......', '.....obobo......'],
+};
+const heroFrame = legs => [...HERO_HEAD, ...HERO_BODY, ...LEGS[legs]];
+const HAND = [12, 12];
+
+const MAPS = {
+  heroA: heroFrame('a'), heroB: heroFrame('b'), heroC: heroFrame('c'),
+  swordDiag: ['......oo', '.....ogo', '....ogo.', '...ogo..', '.yoGo...', '..yo....', '.b.y....', 'b.......'],
+  swordUp: ['..o..', '.ogo.', '.ogo.', '.ogo.', '.oGo.', '.oGo.', 'yyyyy', '..b..', '..b..'],
+  swordFwd: ['.y.........', '.yooooooo..', 'bbygggggGGo', '.yooooooo..', '.y.........'],
+  slash: ['ww....', '..ww..', '....w.', '.....w', '.....w', '....w.', '..ww..', 'ww....'],
+  coin: ['..ooo..', '.oyyyo.', 'oyYyyyo', 'oyYyyyo', 'oyyyyyo', '.oyyyo.', '..ooo..'],
+  crown: ['o...o...o', 'yo.oyo.oy', 'yyoyyyoyy', 'yyyyryyyy', 'ooooooooo'],
+  slime: [
+    '......oooo......',
+    '....oowlaaoo....',
+    '...owlaaaaaao...',
+    '..olaaaaaaaaao..',
+    '.olaaaaaaaaaaao.',
+    '.oaaaeaaaaeaaao.',
+    'oaaaaeaaaaeaaaao',
+    'oaaacaaaaaacaaao',
+    'oaaaaaaeeaaaaaao',
+    'oAaaaaaaaaaaaaAo',
+    '.oAAaaaaaaaaAAo.',
+    '..oooooooooooo..',
+  ],
+  mush: [
+    '.....oooooo.....',
+    '...ooaawwaaoo...',
+    '..oaaawwwwaaao..',
+    '.oawwaaaaaawwao.',
+    '.oawwaaaaaawwao.',
+    'oaaaaaawwaaaaaao',
+    'oAAAAAAAAAAAAAAo',
+    '.oooookkkkooooo.',
+    '....okkkkkko....',
+    '....okekkeko....',
+    '....okckkcko....',
+    '....okkkkkko....',
+    '....oKkkkkKo....',
+    '.....oooooo.....',
+  ],
+  snail: [
+    '..k..k..........',
+    '..o..o..oooooo..',
+    '..o..o.oaaaaaao.',
+    '.okkkkoaallllaAo',
+    'okkkkkoalAAAlaAo',
+    'okekkeoalAlAlaAo',
+    'okkkkkoalAAlaaAo',
+    'okckkcoaallaaAAo',
+    'okkkkkkoaaaaAAo.',
+    'okkkkkkkoooooo.o',
+    '.oKKKKKKKKKKKKKo',
+    '..ooooooooooooo.',
+  ],
+  ghost: [
+    '....oooooo......',
+    '..ooaaaaaaoo....',
+    '.oaalaaaaaaao...',
+    '.oalaaaaaaaaao..',
+    'oaaeaaaeaaaaaao.',
+    'oaaeaaaeaaaaaao.',
+    'oacaaaaacaaaaao.',
+    'oaaaaeeaaaaaaaao',
+    'oaaaaaaaaaaaaaao',
+    'oaaaaaaaaaaaaaAo',
+    'oAaaaaaaaaaaaAAo',
+    'oAAaaAAaaAAaAAo.',
+    '.oAoooAooAoooo..',
+    '..o...o..o......',
+  ],
+  golem: [
+    '....oooooooo....',
+    '...oaaaaaaaao...',
+    '..oalllaaaaaAo..',
+    '..oalaaaaaaaAo..',
+    '..oaeeaaeeaaAo..',
+    '..oaaaaaaaaaAo..',
+    '..oaacaaacaaAo..',
+    '.ooAAAAAAAAAAoo.',
+    'oaaoaaaaaaaaoaao',
+    'oaaoaallaaaaoaao',
+    'oaaoaaaaaaaaoaao',
+    'oAAoaaaaaaaaoAAo',
+    '.oooAAAAAAAAooo.',
+    '...oaaao.oaaao..',
+    '...oAAAo.oAAAo..',
+    '...ooooo.ooooo..',
+  ],
+};
+// 통통 튀는 두 번째 그림: 윗부분 한 줄을 눌러 납작하게
+function squash(map) { const k = Math.floor(map.length * 0.4); return [''].concat(map.slice(0, k), map.slice(k + 1)); }
+
+const PAL_BASE = { o: 'outline', e: 'eye', c: 'cheek', w: 'white' };
+const PALS = {
+  hero: { h: 'hair', H: 'hairL', s: 'skin', t: 'tunic', T: 'tunicD', b: 'leather', y: 'gold' },
+  sword: { g: 'blade', G: 'bladeD', y: 'gold', b: 'leather' },
+  coin: { o: 'goldD', y: 'gold', Y: 'goldL' },
+  crown: { o: 'goldD', y: 'gold', r: 'red' },
+  slimeG: { a: 'slimeG', A: 'slimeGD', l: 'slimeGL' },
+  slimeP: { a: 'slimeP', A: 'slimePD', l: 'slimePL' },
+  slimeB: { a: 'slimeB', A: 'slimeBD', l: 'slimeBL' },
+  slimeF: { a: 'slimeF', A: 'slimeFD', l: 'slimeFL' },
+  mushR: { a: 'mushR', A: 'mushRD', k: 'stem', K: 'stemD' },
+  mushV: { a: 'shellV', A: 'shellVD', k: 'stem', K: 'stemD' },
+  snailO: { a: 'shellO', A: 'shellOD', l: 'shellOL', k: 'snailBody', K: 'snailBodyD' },
+  snailV: { a: 'shellV', A: 'shellVD', l: 'shellVL', k: 'snailBody', K: 'snailBodyD' },
+  ghostW: { a: 'ghostW', A: 'ghostWD', l: 'ghostWL' },
+  ghostF: { a: 'ghostF', A: 'ghostFD', l: 'ghostFL' },
+  golemS: { a: 'golemS', A: 'golemSD', l: 'golemSL' },
+  golemL: { a: 'golemL', A: 'golemLD', l: 'golemLL' },
+};
+const sprCache = new Map();
+function sprite(name, pal, flash = false, frame = 0) {
+  const key = name + '|' + pal + '|' + flash + '|' + frame;
+  let c = sprCache.get(key);
+  if (c) return c;
+  const map = frame ? squash(MAPS[name]) : MAPS[name];
+  const p = PALS[pal] || {};
+  c = document.createElement('canvas');
+  c.width = Math.max(...map.map(r => r.length)); c.height = map.length;
+  const g = c.getContext('2d');
+  map.forEach((row, y) => [...row].forEach((ch, x) => {
+    const tok = p[ch] || PAL_BASE[ch];
+    if (!tok) return;
+    g.fillStyle = COLORS[flash ? 'white' : tok]; g.fillRect(x, y, 1, 1);
+  }));
+  sprCache.set(key, c);
+  return c;
+}
+// 발밑 가운데를 기준점으로 그린다
+function drawSpr(c, cx, footY, sc) { ctx.drawImage(c, Math.round(cx - c.width * sc / 2), Math.round(footY - c.height * sc), c.width * sc, c.height * sc); }
+
+// =====================================================================
+// 5. 지역 — 하늘, 먼 언덕, 가까운 언덕, 소품, 땅, 몬스터
+// =====================================================================
+const PROPS = {
+  tree(x, y, r) { rect(x - 3, y - 28, 6, 28, 'trunk'); blob(x, y - 36, 16 + (r > 0.5 ? 2 : 0), 'treeD'); blob(x - 2, y - 38, 14, 'tree'); blob(x - 6, y - 44, 4, 'treeL'); },
+  mush(x, y, r) { const hgt = 24 + snap(r * 20); rect(x - 4, y - hgt, 8, hgt, 'stem'); blob(x, y - hgt + 2, 18, r > 0.5 ? 'capA' : 'capB', true); blob(x - 8, y - hgt - 8, 2, 'white'); blob(x + 6, y - hgt - 12, 2, 'white'); },
+  reed(x, y, r) { rect(x, y - 26, 2, 26, 'reed'); rect(x + 4, y - 18, 2, 18, 'reed'); rect(x - 4, y - 14, 2, 14, 'reed'); rect(x - 1, y - 32, 4, 8, 'reedTip'); if (r > 0.6) rect(x + 3, y - 24, 4, 6, 'reedTip'); },
+  pine(x, y, r) { rect(x - 2, y - 10, 4, 10, 'trunk'); tri(x, y - 34, 26, 28, 'pineD'); tri(x, y - 48, 24, 22, 'pine'); tri(x, y - 60, 20, 16, 'pine'); tri(x, y - 60, 6, 6, 'snow'); tri(x, y - 48, 4, 8, 'snow'); },
+  spire(x, y, r) { const hgt = 40 + snap(r * 30); tri(x, y - hgt, hgt, 26, 'spireD'); tri(x - 2, y - hgt, hgt, 18, 'spire'); if (r > 0.5) { rect(x + 8, y - 8, 4, 8, 'crystal'); rect(x + 12, y - 4, 2, 4, 'crystal'); } },
+};
+const ZONES = [
+  { name: '풀숲', sky: ['skyM1', 'skyM2', 'skyM3', 'skyM4'], far: ['round', 'hillM1'], near: ['round', 'hillM2'], prop: 'tree', gap: 90,
+    ground: ['groundMT', 'groundM', 'groundMD'], deco: 'flower', mons: [['slime', 'slimeG'], ['snail', 'snailO']], boss: ['slime', 'slimeG'] },
+  { name: '버섯숲', sky: ['skyU1', 'skyU2', 'skyU3', 'skyU4'], far: ['round', 'hillU1'], near: ['round', 'hillU2'], prop: 'mush', gap: 80,
+    ground: ['groundUT', 'groundU', 'groundUD'], deco: 'flowerU', mons: [['mush', 'mushR'], ['slime', 'slimeP'], ['mush', 'mushV']], boss: ['mush', 'mushR'] },
+  { name: '호숫가', sky: ['skyL1', 'skyL2', 'skyL3', 'skyL4'], far: ['round', 'hillL1'], near: null, water: true, prop: 'reed', gap: 70,
+    ground: ['groundLT', 'groundL', 'groundLD'], deco: null, mons: [['snail', 'snailV'], ['slime', 'slimeB']], boss: ['snail', 'snailV'] },
+  { name: '눈 덮인 산', sky: ['skyS1', 'skyS2', 'skyS3', 'skyS4'], far: ['peak', 'hillS1', 'snow'], near: ['peak', 'hillS2', 'snow'], prop: 'pine', gap: 70,
+    ground: ['groundST', 'groundS', 'groundSD'], deco: null, mons: [['ghost', 'ghostW'], ['golem', 'golemS']], boss: ['golem', 'golemS'] },
+  { name: '용의 둥지', sky: ['skyD1', 'skyD2', 'skyD3', 'skyD4'], far: ['peak', 'hillD1'], near: ['round', 'hillD2'], prop: 'spire', gap: 110,
+    ground: ['groundDT', 'groundD', 'groundDD'], deco: 'crystal', mons: [['golem', 'golemL'], ['ghost', 'ghostF'], ['slime', 'slimeF']], boss: ['golem', 'golemL'] },
+];
+const zoneOf = stage => Math.floor((stage - 1) / 5) % ZONES.length;
+const stageLabel = stage => `${Math.floor((stage - 1) / 5) + 1}-${(stage - 1) % 5 + 1}`;
+
+// =====================================================================
+// 6. 저장 — 원천값만, 서명 붙여서
+// =====================================================================
+const SAVE_KEY = 'pixelIdleRpg.v1', SALT = 'kkoma-yongsa-2026';
+function sign(str) { let h = 0x811c9dc5; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193); } return (h >>> 0).toString(16); }
+function freshState() { return { gold: 0, lv: { atk: 0, spd: 0, crit: 0, hp: 0, gold: 0 }, stage: 1, maxStage: 1, farm: false, lastSeen: Date.now() }; }
+function load() {
+  const s = freshState();
+  let raw;
+  try { raw = localStorage.getItem(SAVE_KEY); } catch (e) { return s; }
+  if (!raw) return s;
+  try {
+    const { d, sig } = JSON.parse(raw);
+    if (sign(d + SALT) !== sig) { console.warn('저장 서명이 맞지 않아 새로 시작합니다.'); return s; }
+    const o = JSON.parse(d) || {};
+    const num = (v, def, min = 0) => (typeof v === 'number' && isFinite(v) && v >= min ? v : def);
+    s.gold = num(o.gold, 0);
+    for (const k of UP_KEYS) s.lv[k] = Math.floor(num(o.lv && o.lv[k], 0));
+    s.stage = Math.floor(num(o.stage, 1, 1));
+    s.maxStage = Math.max(s.stage, Math.floor(num(o.maxStage, s.stage, 1)));
+    s.farm = o.farm === true;
+    s.lastSeen = num(o.lastSeen, Date.now());
+  } catch (e) { console.warn('저장을 읽지 못해 새로 시작합니다.', e); }
+  return s;
+}
+function save() {
+  S.lastSeen = Date.now();
+  const d = JSON.stringify({ gold: S.gold, lv: S.lv, stage: S.stage, maxStage: S.maxStage, farm: S.farm, lastSeen: S.lastSeen });
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify({ d, sig: sign(d + SALT) })); } catch (e) { /* 저장소를 못 쓰는 환경 */ }
+}
+
+// =====================================================================
+// 7. 상태와 금화 창구
+// =====================================================================
+const S = load();
+const G = {
+  t: 0, cam: 0, count: 0, bossT: BAL.bossTime,
+  hero: { hp: 0, state: 'walk', atkT: 0, anim: 0, flash: 0, deadT: 0, walkT: 0 },
+  mon: null, corpses: [], coins: [], texts: [], sparks: [],
+  banner: null, popup: null, menu: false, goldPulse: 0, hold: null, btnFlash: {},
+};
+function addGold(n, reason) {
+  if (!(n > 0) || !isFinite(n)) { console.warn('잘못된 금화 지급', n, reason); return; }
+  S.gold += n;
+}
+function spendGold(n) {
+  if (!(n > 0) || !isFinite(n) || S.gold < n) return false;
+  S.gold -= n;
+  return true;
+}
+const stats = () => heroStats(S.lv);
+
+// =====================================================================
+// 8. 싸움 흐름
+// =====================================================================
+const monScale = m => (m.boss ? 4 : 2);
+const monHalf = m => MAPS[m.type][0].length * monScale(m) / 2;
+
+function spawnMonster() {
+  const Z = ZONES[zoneOf(S.stage)];
+  const boss = !S.farm && G.count >= BAL.monstersPerStage;
+  const [type, pal] = boss ? Z.boss : Z.mons[Math.floor(Math.random() * Z.mons.length)];
+  const hp = monHp(S.stage, boss);
+  const m = { type, pal, boss, hp, maxHp: hp, dmg: monDmg(S.stage, boss), atkT: 0, flash: 0, kb: 0, seed: Math.random() * 10 };
+  m.x = G.cam + HERO_X + REACH + monHalf(m) + BAL.spawnGap;
+  G.mon = m;
+  G.bossT = BAL.bossTime;
+  if (boss) banner('우두머리 등장!');
+}
+function banner(text) { G.banner = { text, t: 0, life: 1.4 }; }
+function floatText(s, x, y, color, size) { G.texts.push({ s, x, y, color, size, t: 0, life: 0.8 }); }
+function removeMon() { if (G.mon) G.corpses.push({ ...G.mon, dieT: 0.35 }); G.mon = null; }
+
+function heroHit(m, st) {
+  const crit = Math.random() < st.crit;
+  const dmg = st.atk * (crit ? BAL.critMult : 1);
+  m.hp -= dmg; m.flash = 0.07; m.kb = 4; G.hero.anim = 0.22;
+  const sx = m.x - G.cam, top = GROUND_Y - MAPS[m.type].length * monScale(m);
+  floatText(fmt(Math.max(1, dmg)) + (crit ? '!' : ''), sx + (Math.random() - 0.5) * 12, top - 4, crit ? 'gold' : 'text', crit ? 14 : 9);
+  if (m.hp <= 0) killMon(m, st);
+}
+function killMon(m, st) {
+  const sx = m.x - G.cam;
+  addGold(monGold(S.stage, m.boss) * st.goldMul, m.boss ? 'boss' : 'kill');
+  for (let i = 0; i < (m.boss ? 14 : 4); i++) {
+    G.coins.push({ x: sx, y: GROUND_Y - 12, vx: (Math.random() - 0.5) * 90, vy: -70 - Math.random() * 70, t: 0, fly: false });
+  }
+  removeMon();
+  const h = G.hero;
+  h.hp = Math.min(st.hp, h.hp + st.hp * BAL.healOnKill);
+  if (m.boss) {
+    const from = S.stage;
+    S.stage++; S.maxStage = Math.max(S.maxStage, S.stage); S.farm = false; G.count = 0; h.hp = st.hp;
+    banner(zoneOf(from) !== zoneOf(S.stage) ? `${ZONES[zoneOf(S.stage)].name}에 들어섰어요!` : `${stageLabel(from)} 돌파!`);
+  } else {
+    G.count++;
+    if (S.farm && G.count >= BAL.monstersPerStage) G.count = 0;
+  }
+  spawnMonster();
+}
+function dropBack(msg) {
+  S.stage = Math.max(1, S.stage - 1); S.farm = true; G.count = 0;
+  banner(msg);
+}
+function monHit(m, st) {
+  const h = G.hero;
+  h.hp -= m.dmg; h.flash = 0.1;
+  floatText('-' + fmt(m.dmg), HERO_X - 6, GROUND_Y - 44, 'hurt', 8);
+  if (h.hp > 0) return;
+  h.hp = 0; h.state = 'dead'; h.deadT = BAL.respawnTime;
+  removeMon();
+  if (m.boss) dropBack('쓰러졌어요… 반복 사냥으로 힘을 길러요');
+  else { G.count = 0; banner('쓰러졌어요… 이 단계를 처음부터'); }
+}
+function bossFail() {
+  removeMon();
+  G.hero.hp = stats().hp;
+  dropBack('시간 초과! 반복 사냥으로 힘을 길러요');
+  spawnMonster();
+}
+function retryBoss() {
+  if (!S.farm || G.hero.state === 'dead') return;
+  removeMon();
+  S.stage = S.maxStage; S.farm = false; G.count = BAL.monstersPerStage;
+  spawnMonster();
+}
+function buy(k) {
+  const lv = S.lv[k];
+  if (upMaxed(k, lv) || !spendGold(upCost(k, lv))) return false;
+  const oldHp = stats().hp;
+  S.lv[k]++;
+  if (k === 'hp' && G.hero.state !== 'dead') G.hero.hp += stats().hp - oldHp;
+  G.btnFlash[k] = 0.25;
+  for (let i = 0; i < 6; i++) G.sparks.push({ x: HERO_X + (Math.random() - 0.5) * 30, y: GROUND_Y - 10 - Math.random() * 34, t: 0, life: 0.5 + Math.random() * 0.3 });
+  return true;
+}
+
+function update(dt) {
+  G.t += dt;
+  const st = stats(), h = G.hero, m = G.mon;
+  h.flash = Math.max(0, h.flash - dt); h.anim = Math.max(0, h.anim - dt);
+  G.goldPulse = Math.max(0, G.goldPulse - dt);
+  for (const k in G.btnFlash) G.btnFlash[k] = Math.max(0, G.btnFlash[k] - dt);
+  if (m) { m.flash = Math.max(0, m.flash - dt); m.kb = Math.max(0, m.kb - dt * 30); }
+
+  if (h.state === 'dead') {
+    h.deadT -= dt;
+    if (h.deadT <= 0) { h.state = 'walk'; h.hp = st.hp; spawnMonster(); }
+  } else if (m) {
+    if (m.x - G.cam - monHalf(m) > HERO_X + REACH) {
+      h.state = 'walk'; h.walkT += dt;
+      G.cam = Math.min(G.cam + BAL.walkSpeed * dt, m.x - monHalf(m) - HERO_X - REACH);
+    } else {
+      if (h.state !== 'fight') { h.state = 'fight'; h.atkT = 0; m.atkT = 0; }
+      const iv = 1 / st.aps;
+      h.atkT += dt;
+      while (h.atkT >= iv && G.mon === m) { h.atkT -= iv; heroHit(m, st); }
+      if (G.mon === m) {
+        m.atkT += dt;
+        if (m.atkT >= BAL.monAtkInterval) { m.atkT -= BAL.monAtkInterval; monHit(m, st); }
+      }
+      if (G.mon === m && m.boss) { G.bossT -= dt; if (G.bossT <= 0) bossFail(); }
+    }
+  }
+  // 누르고 있으면 계속 사기
+  if (G.hold) { G.hold.t += dt; while (G.hold.t >= BAL.holdRepeat) { G.hold.t -= BAL.holdRepeat; if (!buy(G.hold.k)) break; } }
+  // 연출
+  G.corpses = G.corpses.filter(c => (c.dieT -= dt) > 0);
+  G.texts = G.texts.filter(t => (t.t += dt) < t.life);
+  G.sparks = G.sparks.filter(s => (s.t += dt) < s.life);
+  if (G.banner && (G.banner.t += dt) > G.banner.life) G.banner = null;
+  for (const c of G.coins) {
+    c.t += dt;
+    if (!c.fly) {
+      c.vy += 300 * dt; c.x += c.vx * dt; c.y += c.vy * dt;
+      if (c.y > GROUND_Y - 4) { c.y = GROUND_Y - 4; c.vy *= -0.45; c.vx *= 0.6; }
+      if (c.t > 0.55) { c.fly = true; c.t = 0; c.sx = c.x; c.sy = c.y; }
+    } else {
+      const k = Math.min(1, c.t / 0.4), e = k * k;
+      c.x = c.sx + (11 - c.sx) * e; c.y = c.sy + (11 - c.sy) * e;
+      if (k >= 1) { c.dead = true; G.goldPulse = 0.12; }
+    }
+  }
+  G.coins = G.coins.filter(c => !c.dead);
+}
+
+// =====================================================================
+// 9. 그리기 — 배경
+// =====================================================================
+function drawHills(spec, factor, base, amp, seed) {
+  if (!spec) return;
+  const [kind, color, cap] = spec, off = G.cam * factor;
+  for (let x = 0; x < W; x += PX) {
+    const wx = x + off + seed * 97;
+    let hgt;
+    if (kind === 'peak') { const f = (wx / 150) % 1; hgt = (1 - Math.abs(f - 0.5) * 2) * amp + Math.sin(wx * 0.05) * 4; }
+    else hgt = (Math.sin(wx * 0.012) * 0.6 + Math.sin(wx * 0.031 + seed) * 0.4 + 1) * amp * 0.5;
+    const y = snap(base - hgt);
+    rect(x, y, PX, GROUND_Y - y, color);
+    if (cap && hgt > amp * 0.6) rect(x, y, PX, snap(hgt - amp * 0.6) + PX, cap);
+  }
+}
+function drawBackground() {
+  const Z = ZONES[zoneOf(S.stage)];
+  if (!BAR) drawScenery(Z);
+  const pOff = G.cam * 0.6, P = Z.gap;
+  if (BAR) ctx.globalAlpha = 0.6; // 띠 모드: 소품은 살짝 비치게
+  for (let i = Math.floor(pOff / P) - 1; i <= Math.floor((pOff + W) / P) + 1; i++) {
+    const r = rnd(i * 7 + zoneOf(S.stage));
+    PROPS[Z.prop](snap(i * P - pOff + r * P * 0.4), GROUND_Y, r);
+  }
+  ctx.globalAlpha = 1;
+  const [top, mid, dark] = Z.ground;
+  rect(0, GROUND_Y, W, (BAR ? H : PANEL_Y) - GROUND_Y, mid);
+  rect(0, GROUND_Y, W, 4, top);
+  const T = 16;
+  for (let i = Math.floor(G.cam / T); i <= Math.floor((G.cam + W) / T); i++) {
+    const x = Math.round(i * T - G.cam), r = rnd(i * 3 + 1);
+    rect(x + (i % 2) * 8, GROUND_Y + 4, 8, 2, top);
+    if (r < 0.5) rect(x + snap(r * 20), GROUND_Y + 10 + snap(r * 16), 4, 2, dark);
+    if (r > 0.45) rect(x + 4, GROUND_Y - 2, 2, 2, top);
+    if (Z.deco && r > 0.82) { rect(x + 10, GROUND_Y - 4, 2, 4, top); rect(x + 9, GROUND_Y - 6, 4, 2, Z.deco); }
+  }
+}
+// 하늘, 구름, 언덕, 물 — 띠 모드에서는 그리지 않는다
+function drawScenery(Z) {
+  const bh = GROUND_Y / Z.sky.length;
+  Z.sky.forEach((c, i) => {
+    const y = Math.floor(i * bh);
+    rect(0, y, W, Math.ceil(bh) + 1, c);
+    if (i > 0) for (let x = (i % 2) * 2; x < W; x += 4) rect(x, y - 2, 2, 2, c); // 띠 경계 점무늬
+  });
+  // 구름
+  const cOff = G.cam * 0.1 + G.t * 5, CP = 150;
+  for (let i = Math.floor(cOff / CP) - 1; i <= Math.floor((cOff + W) / CP) + 1; i++) {
+    const r = rnd(i + 11);
+    if (r < 0.25) continue;
+    const x = i * CP - cOff + r * 50, y = 34 + rnd(i * 5) * 44;
+    blob(x + 2, y + 4, 10, 'cloudD'); blob(x + 14, y + 2, 12, 'cloudD');
+    blob(x, y, 10, 'cloud'); blob(x + 12, y - 4, 12, 'cloud'); blob(x + 26, y, 8, 'cloud');
+  }
+  drawHills(Z.far, 0.15, GROUND_Y - 30, 50, 1);
+  drawHills(Z.near, 0.3, GROUND_Y - 6, 36, 3);
+  if (Z.water) {
+    rect(0, GROUND_Y - 30, W, 30, 'water');
+    const wOff = G.cam * 0.4 + G.t * 6;
+    for (let i = 0; i < 24; i++) rect(snap((i * 53 + rnd(i) * 40 - wOff) % (W + 40) + W + 40) % (W + 40) - 20, GROUND_Y - 26 + (i % 5) * 5, 10, 2, 'waterL');
+  }
+}
+
+// =====================================================================
+// 10. 그리기 — 인물과 연출
+// =====================================================================
+function bar(x, y, w, h, frac, color) {
+  rect(x - 1, y - 1, w + 2, h + 2, 'barBack');
+  rect(x, y, Math.max(0, Math.min(1, frac)) * w, h, color);
+}
+function drawMonster(m, alpha) {
+  const sc = monScale(m), sx = m.x - G.cam + m.kb, frame = Math.floor(G.t * 2.5 + m.seed) % 2;
+  const c = sprite(m.type, m.pal, m.flash > 0, frame);
+  const top = GROUND_Y - c.height * sc;
+  ctx.globalAlpha = alpha;
+  rect(sx - monHalf(m) * 0.7, GROUND_Y - 2, monHalf(m) * 1.4, 3, 'shadow');
+  drawSpr(c, sx, GROUND_Y, sc);
+  if (m.boss) drawSpr(sprite('crown', 'crown'), sx, top + 4, 2);
+  ctx.globalAlpha = 1;
+  if (alpha === 1) bar(sx - monHalf(m) * 0.8, GROUND_Y - MAPS[m.type].length * sc - (m.boss ? 18 : 8), monHalf(m) * 1.6, 3, m.hp / m.maxHp, 'hpMon');
+}
+function drawHero() {
+  const h = G.hero, st = stats();
+  if (h.state === 'dead') {
+    ctx.globalAlpha = 0.35 + 0.2 * Math.sin(G.t * 20);
+    drawSpr(sprite('heroA', 'hero', true), HERO_X, GROUND_Y, 2);
+    ctx.globalAlpha = 1;
+    if (!BAR) txt(`${h.deadT.toFixed(1)}초 뒤 일어나요`, HERO_X, GROUND_Y - 44, 8, 'text', 'center', 'stroke');
+    return;
+  }
+  const walking = h.state === 'walk';
+  const legs = walking ? ['heroA', 'heroC', 'heroB', 'heroC'][Math.floor(h.walkT * 8) % 4] : 'heroA';
+  const swing = h.anim > 0 && h.anim < 0.12, windup = h.anim >= 0.12;
+  const lean = swing ? 2 : 0, bob = walking && legs === 'heroC' ? -2 : 0;
+  const body = sprite(legs, 'hero', h.flash > 0);
+  const left = HERO_X - body.width + lean, top = GROUND_Y - body.height * 2 + bob;
+  rect(HERO_X - 12, GROUND_Y - 2, 24, 3, 'shadow');
+  drawSpr(body, HERO_X + lean, GROUND_Y + bob, 2);
+  const [sw, ax, ay] = swing ? ['swordFwd', 1, 2] : windup ? ['swordUp', 2, 7] : ['swordDiag', 1, 6];
+  const s = sprite(sw, 'sword', h.flash > 0);
+  ctx.drawImage(s, left + (HAND[0] - ax) * 2, top + (HAND[1] - ay) * 2 - (windup ? 6 : 0), s.width * 2, s.height * 2);
+  if (swing) { const sl = sprite('slash', 'sword'); ctx.drawImage(sl, HERO_X + 26, top + 12, sl.width * 2, sl.height * 2); }
+  bar(HERO_X - 14, top - 6, 28, 3, h.hp / st.hp, 'hpHero');
+}
+function drawFx() {
+  const coin = sprite('coin', 'coin');
+  for (const c of G.coins) ctx.drawImage(coin, Math.round(c.x - 3), Math.round(c.y - 3));
+  for (const s of G.sparks) {
+    const k = s.t / s.life, y = s.y - k * 14, n = k < 0.5 ? 2 : 1;
+    rect(s.x - n, y, n * 2 + 1, 1, 'goldL'); rect(s.x, y - n, 1, n * 2 + 1, 'goldL');
+  }
+  for (const t of G.texts) {
+    const k = t.t / t.life, pop = t.t < 0.08 ? 1.3 : 1;
+    ctx.globalAlpha = k < 0.6 ? 1 : 1 - (k - 0.6) / 0.4;
+    txt(t.s, t.x, t.y - k * 18, Math.round(t.size * pop), t.color, 'center', 'stroke');
+    ctx.globalAlpha = 1;
+  }
+}
+
+// =====================================================================
+// 11. 그리기 — 윗줄, 강화판, 알림창
+// =====================================================================
+const UP_INFO = {
+  atk: { name: '공격력', f: v => (v < 1000 ? String(Math.round(v * 10) / 10) : fmt(v)) },
+  spd: { name: '공격 속도', f: v => v.toFixed(2) },
+  crit: { name: '치명타 확률', f: v => Math.round(v * 1000) / 10 + '%' },
+  hp: { name: '체력', f: v => fmt(v) },
+  gold: { name: '금화 획득', f: v => '×' + v.toFixed(2) },
+};
+const BTNS = UP_KEYS.map((k, i) => ({ k, x: 5 + i * 94, y: PANEL_Y + 4, w: 90, h: 52 }));
+const MENU_BTN = { x: W - 42, y: 2, w: 38, h: 15 };
+const BOSS_BTN = BAR ? { x: W - 84, y: 2, w: 38, h: 15 } : { x: W - 98, y: 26, w: 92, h: 20 };
+const POPUP_Y = BAR ? 6 : 64;
+const POPUP = { x: 150, y: POPUP_Y, w: 180, h: 84, btn: { x: 200, y: POPUP_Y + 56, w: 80, h: 20 } };
+const inRect = (p, r) => p.x >= r.x && p.x < r.x + r.w && p.y >= r.y && p.y < r.y + r.h;
+
+function drawHud() {
+  const st = stats();
+  drawSpr(sprite('coin', 'coin'), 11, 18, 2);
+  txt(fmt(S.gold), 22, 16, G.goldPulse > 0 ? 13 : 12, 'gold', 'left', 'stroke');
+  const m = G.mon;
+  if (BAR) { // 띠 모드: 단계 번호와 단추만
+    txt(stageLabel(S.stage), W / 2, 13, 10, m && m.boss ? 'gold' : 'text', 'center', 'stroke');
+    if (m && m.boss) bar(W / 2 - 40, 17, 80, 2, G.bossT / BAL.bossTime, 'gold');
+    const b = MENU_BTN, any = UP_KEYS.some(k => !upMaxed(k, S.lv[k]) && S.gold >= upCost(k, S.lv[k]));
+    box(b.x, b.y, b.w, b.h, G.menu ? 'gold' : 'btn', 'goldD');
+    txt(G.menu ? '닫기' : '강화', b.x + b.w / 2, b.y + 11, 9, 'textDark', 'center');
+    if (any && !G.menu) { rrect(b.x + b.w - 5, b.y - 2, 7, 7, 'white'); rrect(b.x + b.w - 4, b.y - 1, 5, 5, 'red'); }
+  } else {
+    txt(`${stageLabel(S.stage)} ${ZONES[zoneOf(S.stage)].name}`, W / 2, 14, 11, 'text', 'center', 'stroke');
+    const sub = m && m.boss ? '우두머리!' : S.farm ? `반복 사냥 ${G.count}/${BAL.monstersPerStage}` : `${G.count}/${BAL.monstersPerStage}`;
+    txt(sub, W / 2, 25, 8, m && m.boss ? 'gold' : 'text', 'center', 'stroke');
+    txt(`초당 피해 ${fmt(st.dps)}`, W - 6, 15, 9, 'text', 'right', 'stroke');
+    if (m && m.boss) {
+      bar(W / 2 - 70, 30, 140, 4, G.bossT / BAL.bossTime, 'gold');
+      txt(`남은 시간 ${Math.max(0, G.bossT).toFixed(1)}초`, W / 2, 44, 8, 'text', 'center', 'stroke');
+    }
+  }
+  if (S.farm && G.hero.state !== 'dead') {
+    const b = BOSS_BTN;
+    box(b.x, b.y, b.w, b.h, 'gold', 'goldD');
+    txt(BAR ? '도전' : '우두머리 도전', b.x + b.w / 2, b.y + (BAR ? 11 : 14), 9, 'textDark', 'center');
+  }
+}
+function drawPanel() {
+  if (BAR && !G.menu) return;
+  rect(0, PANEL_Y, W, BAR ? 60 : H - PANEL_Y, 'panel');
+  rect(0, PANEL_Y, W, 2, 'panelEdge');
+  for (const b of BTNS) {
+    const lv = S.lv[b.k], info = UP_INFO[b.k], maxed = upMaxed(b.k, lv), cost = upCost(b.k, lv);
+    const can = !maxed && S.gold >= cost, lit = G.btnFlash[b.k] > 0;
+    const y = b.y + (G.hold && G.hold.k === b.k ? 1 : 0);
+    box(b.x, y, b.w, b.h, can ? 'btn' : 'btnOff', lit ? 'gold' : can ? 'btnEdge' : 'btnOffEdge');
+    if (lit) rrect(b.x + 2, y + 2, b.w - 4, 1, 'goldL');
+    const tc = can ? 'textDark' : 'textOff';
+    txt(info.name, b.x + 5, y + 12, 9, tc);
+    txt(`Lv.${lv}`, b.x + b.w - 5, y + 12, 8, tc, 'right');
+    const cur = info.f(upValue(b.k, lv));
+    if (maxed) txt(`${cur} (최대)`, b.x + 5, y + 28, 9, tc);
+    else {
+      txt(`${cur} →`, b.x + 5, y + 28, 9, tc);
+      ctx.font = `bold 9px ${FONT}`;
+      txt(info.f(upValue(b.k, lv + 1)), b.x + 5 + ctx.measureText(`${cur} → `).width, y + 28, 9, can ? 'up' : tc);
+    }
+    if (maxed) txt('다 올렸어요', b.x + 5, y + 44, 8, tc);
+    else {
+      drawSpr(sprite('coin', 'coin'), b.x + 9, y + 46, 1);
+      txt(fmt(cost), b.x + 15, y + 45, 9, can ? 'goldD' : tc);
+    }
+    if (can) { rrect(b.x + b.w - 7, y - 3, 8, 8, 'white'); rrect(b.x + b.w - 6, y - 2, 6, 6, 'red'); }
+  }
+}
+function drawOverlays() {
+  if (G.banner && !BAR) {
+    const b = G.banner, k = b.t / b.life;
+    ctx.globalAlpha = k > 0.75 ? 1 - (k - 0.75) / 0.25 : 1;
+    txt(b.text, W / 2, 84 - Math.min(1, b.t * 8) * 6, 14, 'gold', 'center', 'stroke');
+    ctx.globalAlpha = 1;
+  }
+  if (G.popup) {
+    const p = POPUP;
+    box(p.x, p.y, p.w, p.h, 'popup', 'gold');
+    txt('자리 비운 동안', p.x + p.w / 2, p.y + 20, 10, 'textDark', 'center');
+    drawSpr(sprite('coin', 'coin'), p.x + p.w / 2 - 44, p.y + 46, 2);
+    txt(`+${fmt(G.popup.gold)} 금화`, p.x + p.w / 2 + 6, p.y + 42, 13, 'gold', 'center', 'stroke');
+    box(p.btn.x, p.btn.y, p.btn.w, p.btn.h, 'gold', 'goldD');
+    txt('받기', p.btn.x + p.btn.w / 2, p.btn.y + 14, 10, 'textDark', 'center');
+  }
+}
+function render() {
+  if (BAR) ctx.clearRect(0, 0, W, H);
+  drawBackground();
+  for (const c of G.corpses) drawMonster(c, c.dieT / 0.35);
+  if (G.mon) drawMonster(G.mon, 1);
+  drawHero();
+  drawFx();
+  drawHud();
+  drawPanel();
+  drawOverlays();
+}
+
+// =====================================================================
+// 12. 입력 — 누르기, 길게 누르기, 연출 건너뛰기
+// =====================================================================
+function toLocal(e) { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) / r.width * W, y: (e.clientY - r.top) / r.height * H }; }
+cv.addEventListener('pointerdown', e => {
+  const p = toLocal(e);
+  if (G.popup) { // 받기든 아무 곳이든 한 번 누르면 닫힌다 (금화는 이미 들어와 있다)
+    for (let i = 0; i < 10; i++) G.coins.push({ x: W / 2, y: POPUP.y + 40, vx: (Math.random() - 0.5) * 120, vy: -80 - Math.random() * 60, t: 0, fly: false });
+    G.popup = null; return;
+  }
+  G.banner = null;
+  if (S.farm && inRect(p, BOSS_BTN)) { retryBoss(); return; }
+  if (BAR && inRect(p, MENU_BTN)) { G.menu = !G.menu; return; }
+  const b = (!BAR || G.menu) && BTNS.find(b => inRect(p, b));
+  if (b) { buy(b.k); G.hold = { k: b.k, t: -BAL.holdDelay }; cv.setPointerCapture(e.pointerId); return; }
+  // 빈 곳을 누르면 떠 있는 연출을 끝낸다
+  G.coins.forEach(c => { c.fly = true; c.t = 1; c.sx = c.x; c.sy = c.y; });
+  G.texts = [];
+});
+cv.addEventListener('pointermove', e => { if (G.hold && !inRect(toLocal(e), BTNS.find(b => b.k === G.hold.k))) G.hold = null; });
+for (const ev of ['pointerup', 'pointercancel', 'lostpointercapture']) cv.addEventListener(ev, () => { G.hold = null; });
+
+// =====================================================================
+// 13. 자리 비움 보상, 저장 주기, 돌리기
+// =====================================================================
+function grantOffline() {
+  const sec = Math.min(BAL.offlineCapSec, Math.max(0, (Date.now() - S.lastSeen) / 1000));
+  S.lastSeen = Date.now();
+  if (sec < BAL.offlineMinSec) return;
+  const gold = Math.floor(sec * goldPerSec(S.lv, S.stage) * BAL.offlineRate);
+  if (gold < 1) return;
+  addGold(gold, 'offline'); // 금화는 먼저 넣고, 창은 보여 주기만 한다
+  G.popup = { gold: gold + (G.popup ? G.popup.gold : 0) };
+  save();
+}
+addEventListener('resize', fit);
+addEventListener('beforeunload', save);
+document.addEventListener('visibilitychange', () => { if (document.hidden) save(); else grantOffline(); });
+setInterval(() => { if (!document.hidden) save(); }, BAL.saveEvery * 1000);
+
+fit();
+G.hero.hp = stats().hp;
+grantOffline();
+spawnMonster();
+let last = performance.now();
+function frame(now) {
+  update(Math.max(0, Math.min(0.1, (now - last) / 1000))); // 첫 프레임 시각이 last보다 이를 수 있다
+  last = now;
+  render();
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

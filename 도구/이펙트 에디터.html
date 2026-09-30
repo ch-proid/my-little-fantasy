@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>이펙트 에디터</title>
+<style>
+  @font-face { font-family: 'Galmuri11'; src: url('../글꼴/Galmuri11.woff2') format('woff2'); font-weight: 400; }
+  @font-face { font-family: 'Galmuri11'; src: url('../글꼴/Galmuri11-Bold.woff2') format('woff2'); font-weight: 700; }
+  :root {
+    --bg: #3a2418; --panel: #4a2e20; --card: #5a3a28; --edge: #2e1a10; --line: #8a6040; --cream: #f6e6c8; --sub: #c9a986;
+    --gold: #ffd24d; --goldText: #4a2a10; --bad: #ff8a7a; --field: #2e1a10; --on: #f0a860; --onText: #5a3420; --onEdge: #ffd8a0;
+    --check1: #6a6a7a; --check2: #8a8a9a; --sky: #7fd4ff; --grass: #5ac04a; --dirt: #c98f58; --dark: #1a1420;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: radial-gradient(ellipse at top, #5a3a28, var(--bg) 70%) fixed; color: var(--cream); font: 14px/1.5 "Galmuri11", "Malgun Gothic", sans-serif; }
+  .wrap { max-width: 1400px; margin: 0 auto; padding: 14px 16px 40px; }
+  header { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+  h1 { margin: 0 10px 0 0; font-size: 24px; color: #ffe8b0; text-shadow: 0 3px 0 #7a3a10; }
+  button, select, input[type=text], input[type=number] { font: inherit; color: var(--cream); background: var(--field); border: 2px solid var(--line); border-radius: 10px; padding: 4px 10px; min-height: 36px; }
+  button { cursor: pointer; background: #472c1e; }
+  button:hover { border-color: var(--onEdge); }
+  button.gold { background: var(--gold); color: var(--goldText); border-color: #fff0a0; font-weight: 700; box-shadow: 0 3px 0 #a07a10; }
+  button.on { background: var(--on); color: var(--onText); border-color: var(--onEdge); font-weight: 700; }
+  button.warn { border-color: var(--bad); color: var(--bad); }
+  input[type=text] { width: 160px; }
+  .grid { display: grid; grid-template-columns: 290px minmax(0, 1fr) 290px; gap: 12px; align-items: start; }
+  @media (max-width: 1050px) { .grid { grid-template-columns: 1fr; } }
+  .panel { background: var(--panel); border: 2px solid var(--edge); border-radius: 14px; padding: 10px 12px; box-shadow: 0 3px 0 var(--edge); }
+  .panel h2 { margin: 6px 0 8px; font-size: 15px; color: #ffe8b0; border-bottom: 2px solid var(--edge); padding-bottom: 4px; }
+  .row { display: grid; grid-template-columns: 92px 1fr; gap: 6px; align-items: center; margin: 6px 0; }
+  .row > b { font-size: 13px; font-weight: 400; color: var(--sub); }
+  .row select { width: 100%; }
+  .slider { display: grid; grid-template-columns: 1fr 44px; gap: 6px; align-items: center; }
+  .slider output { text-align: right; font-size: 13px; color: var(--gold); }
+  input[type=range] { width: 100%; accent-color: var(--on); }
+  input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--on); }
+  .chips { display: flex; flex-wrap: wrap; gap: 4px; }
+  .chips button { padding: 2px 8px; min-height: 30px; font-size: 13px; }
+  .swatches { display: flex; gap: 4px; min-width: 0; }
+  .swatches input { flex: 1; min-width: 0; width: auto; height: 32px; padding: 0; border: 2px solid var(--line); border-radius: 8px; background: none; cursor: pointer; }
+  .stageBox { background: var(--panel); border: 2px solid var(--edge); border-radius: 14px; padding: 10px; display: flex; flex-direction: column; gap: 8px; align-items: center; box-shadow: 0 3px 0 var(--edge); }
+  .bar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: center; }
+  .bar span { color: var(--sub); font-size: 13px; }
+  canvas { image-rendering: pixelated; max-width: 100%; border-radius: 8px; }
+  #strip { display: flex; gap: 4px; overflow-x: auto; max-width: 100%; padding-bottom: 4px; }
+  #strip canvas { cursor: pointer; border: 2px solid transparent; flex: none; }
+  #strip canvas.cur { border-color: var(--gold); }
+  .list { display: flex; flex-wrap: wrap; gap: 6px; }
+  .list .item { display: flex; gap: 4px; align-items: center; background: var(--card); border: 2px solid var(--line); border-radius: 10px; padding: 2px 4px 2px 8px; }
+  .list .item small { color: var(--gold); }
+  .note { color: var(--sub); font-size: 12px; margin: 4px 0 0; }
+  .note.bad { color: var(--bad); }
+  .seed { display: flex; gap: 6px; }
+  .seed input { flex: 1; min-width: 0; width: 0; }
+  .row > * { min-width: 0; }
+  .stack { display: flex; flex-direction: column; gap: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>이펙트 에디터</h1>
+    <button class="gold" id="random">무작위</button>
+    <input type="text" id="name" aria-label="이펙트 이름">
+    <select id="slot" aria-label="게임에서 쓸 곳"></select>
+    <button class="gold" id="save">게임에 저장</button>
+    <button id="png">PNG 시트 받기</button>
+    <button id="copy">설정 복사</button>
+    <span class="note" id="msg"></span>
+  </header>
+  <div class="grid">
+    <div class="panel" id="left"></div>
+    <div class="stack">
+      <div class="stageBox">
+        <div class="bar" id="viewBar"></div>
+        <canvas id="big"></canvas>
+        <div id="strip"></div>
+        <canvas id="game"></canvas>
+        <p class="note">아래 무대 = 게임 크기(칸 1개 = 2px)를 3배로 키운 것. 주인공 옆에서 크기를 가늠한다.</p>
+      </div>
+      <div class="panel"><h2>기본 이펙트</h2><div class="list" id="presets"></div>
+        <h2>공용 이펙트 <small class="note">게임의 모든 공격·스킬이 이 모양으로 그려진다. 고쳐서 같은 자리로 저장하면 게임 전체가 바뀐다</small></h2><div class="list" id="bases"></div></div>
+      <div class="panel"><h2>내 이펙트 <small class="note" id="dirNote"></small></h2><div class="list" id="mine"></div></div>
+    </div>
+    <div class="panel" id="right"></div>
+  </div>
+</div>
+<script src="../코드/그림/pixfx.js"></script>
+<script src="../코드/그림/pixfx_list.js" onerror="window.PIXFX_LIST_MISSING = true"></script>
+<script>
+'use strict';
+(() => {
+const $ = id => document.getElementById(id);
+const store = { get(k, d) { try { const v = localStorage.getItem('pixfx.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem('pixfx.' + k, JSON.stringify(v)); } catch (e) { /* 저장 안 됨: 괜찮다 */ } } };
+const el = (tag, props = {}, ...kids) => { const e = Object.assign(document.createElement(tag), props); e.append(...kids); return e; };
+
+// ---------- 기본 이펙트 (고르면 그 설정에서 시작) ----------
+const PRESETS = [
+  { name: '타격 불꽃', slot: '타격', move: 'burst', emitter: 'point', count: 16, psize: 3, shapes: ['circle', 'plus'], palette: '불꽃', frames: 8, size: 32, fps: 20, spawn: 0, chaos: 0.45, speed: 0.55, sizeLife: 'shrink', fade: 'out', fadeStr: 0.6, range: 0.3, glow: true },
+  { name: '치명타 별', slot: '치명타', move: 'burst', emitter: 'point', count: 10, psize: 3, shapes: ['star'], palette: '빛', frames: 12, size: 40, fps: 20, spawn: 0, chaos: 0.4, speed: 1, sizeLife: 'shrink', fade: 'out', glow: true, outline: false },
+  { name: '처치 연기', slot: '처치', move: 'burst', emitter: 'line', emitR: 0.4, count: 12, psize: 5, shapes: ['circle'], palette: '연기', frames: 14, size: 40, fps: 16, spawn: 0.15, chaos: 0.5, speed: 0.45, gravity: -0.5, sizeLife: 'shrink', fade: 'out', fadeStr: 0.8, outline: true, anchor: 'bottom', range: 0.4 },
+  { name: '레벨업 빛기둥', slot: '레벨업', move: 'rise', emitter: 'line', emitR: 0.3, count: 40, psize: 2, shapes: ['star', 'dot', 'plus'], palette: '빛', frames: 20, size: 64, fps: 16, spawn: 0.45, chaos: 0.3, speed: 1.2, sizeLife: 'same', fade: 'out', fadeStr: 0.9, range: 0.4, glow: true, anchor: 'bottom' },
+  { name: '마법 고리', move: 'ring', emitter: 'point', emitR: 0.1, count: 28, psize: 2, shapes: ['dot'], palette: '은하', frames: 14, size: 48, fps: 16, spawn: 0, chaos: 0.2, speed: 1, sizeLife: 'same', fade: 'out', glow: true },
+  { name: '독 거품', move: 'rise', emitter: 'circle', emitR: 0.5, count: 10, psize: 4, shapes: ['ring', 'circle'], palette: '독', frames: 20, size: 32, fps: 12, loop: true, chaos: 0.6, speed: 0.5, sizeLife: 'grow', fade: 'inout' },
+  { name: '반짝이', move: 'float', emitter: 'circle', emitR: 0.8, count: 10, psize: 2, shapes: ['star', 'plus'], palette: '금화', frames: 16, size: 32, fps: 10, loop: true, chaos: 0.5, speed: 0.6, sizeLife: 'pulse', fade: 'blink', glow: true },
+  { name: '눈 내림', move: 'fall', emitter: 'line', emitR: 1, count: 22, psize: 1, shapes: ['dot', 'plus'], palette: '얼음', frames: 24, size: 48, fps: 12, loop: true, chaos: 0.6, speed: 1, sizeLife: 'same', fade: 'none', colorLife: false, range: 0.6 },
+  { name: '소용돌이', move: 'swirl', emitter: 'point', count: 30, psize: 2, shapes: ['dot', 'streak'], palette: '물', frames: 20, size: 48, fps: 16, spawn: 0.4, chaos: 0.3, speed: 0.9, spin: 1.2, sizeLife: 'shrink', fade: 'out', glow: true },
+  { name: '번개 튐', move: 'burst', emitter: 'point', count: 12, psize: 3, shapes: ['streak'], palette: '번개', frames: 8, size: 40, fps: 20, spawn: 0, chaos: 0.7, speed: 1.2, sizeLife: 'same', fade: 'out', glow: true },
+];
+
+// ---------- 지금 설정 ----------
+let p = pixfxFill(store.get('cur', PRESETS[0]));
+let playing = true, hold = 0, t0 = performance.now(), view = Object.assign({ bg: 'check', zoom: 0, hero: true }, store.get('view', {}));
+const save = () => { store.set('cur', p); store.set('view', view); };
+function set(k, v) { p[k] = v; if (k === 'palette') p.colors = null; changed(); }
+function changed() { save(); t0 = performance.now(); playing = true; build(); }
+
+// ---------- 조절판 ----------
+function row(label, ctl) { return el('div', { className: 'row' }, el('b', { textContent: label }), ctl); }
+function pick(key, opts, label) { const s = el('select', { 'aria-label': label }); for (const [v, n] of Object.entries(opts)) s.append(el('option', { value: v, textContent: n, selected: String(p[key]) === v })); s.onchange = () => set(key, isNaN(+s.value) || s.value === '' ? s.value : +s.value); return row(label, s); }
+function slide(key, label, min, max, step, fmt = v => v) {
+  const r = el('input', { type: 'range', min, max, step, value: p[key], 'aria-label': label }), o = el('output', { textContent: fmt(p[key]) });
+  r.oninput = () => { p[key] = +r.value; o.textContent = fmt(+r.value); save(); t0 = performance.now(); playing = true; build(true); };
+  return row(label, el('div', { className: 'slider' }, r, o));
+}
+function dirRow() { const c = el('input', { type: 'checkbox', checked: p.dir != null, 'aria-label': '한쪽으로' }); c.onchange = () => set('dir', c.checked ? 270 : null); return row('한쪽으로', el('div', {}, c)); }
+function check(key, label) { const c = el('input', { type: 'checkbox', checked: !!p[key], 'aria-label': label }); c.onchange = () => set(key, c.checked); return row(label, el('div', {}, c)); }
+const pct = v => Math.round(v * 100) + '%';
+function panels() {
+  const L = $('left'); L.replaceChildren(el('h2', { textContent: '움직임' }),
+    pick('move', PIXFX_MOVES, '움직임'), pick('emitter', PIXFX_EMITTERS, '나오는 곳'),
+    slide('emitR', '나오는 넓이', 0, 1, 0.05, pct), slide('chaos', '흐트러짐', 0, 1, 0.05, pct),
+    slide('speed', '멀리 가기', 0.2, 2, 0.05, v => (+v).toFixed(2)), slide('gravity', '중력', -1, 2, 0.05, v => (+v).toFixed(2)),
+    ...(p.move === 'swirl' || p.move === 'orbit' ? [slide('spin', '감기는 바퀴', -2, 2, 0.1, v => (+v).toFixed(1))] : []),
+    ...(p.move === 'orbit' ? [slide('rings', '고리 수', 1, 3, 1)] : []),
+    ...(p.move === 'slash' ? [slide('sRx', '가로 반지름', 2, 40, 1), slide('sRy', '세로 반지름', 1, 40, 1), slide('sRot', '기울기(도)', -90, 90, 5), slide('sA0', '시작 각(도)', -180, 180, 5), slide('sA1', '끝 각(도)', -180, 180, 5), slide('sW', '굵기(칸)', 1, 16, 0.5), slide('sGrow', '머리 빠르기', 0.05, 0.9, 0.05, pct)] : []),
+    ...(['ring', 'orbit', 'slash'].includes(p.move) ? [] : [dirRow(), ...(p.dir == null ? [] : [slide('dir', '방향(도)', 0, 355, 5, v => v + '°'), slide('spread', '퍼짐 각도', 10, 360, 10, v => v + '°')])]),
+    slide('squash', '눕히기', 0.2, 1, 0.05, pct), slide('driftX', '흐름 옆(칸)', -20, 20, 1), slide('driftY', '흐름 위아래(칸)', -20, 20, 1),
+    ...(p.loop ? [] : [slide('spawn', '나오는 시간', 0, 1, 0.05, pct)]),
+    el('h2', { textContent: '입자' }),
+    slide('count', '입자 수', 1, 80, 1), slide('psize', '크기(칸)', 1, 8, 1), pick('sizeLife', PIXFX_SIZELIFE, '크기 변화'));
+  const chips = el('div', { className: 'chips' });
+  for (const [v, n] of Object.entries(PIXFX_SHAPES)) {
+    const on = p.shapes.includes(v), b = el('button', { textContent: n, className: on ? 'on' : '' });
+    b.onclick = () => { const s = on ? p.shapes.filter(x => x !== v) : [...p.shapes, v]; set('shapes', s.length ? s : [v]); };
+    chips.append(b);
+  }
+  L.append(row('모양(여럿)', chips));
+
+  const R = $('right'); R.replaceChildren(el('h2', { textContent: '그림' }),
+    pick('frames', { 6: '6장', 8: '8장', 10: '10장', 12: '12장', 16: '16장', 20: '20장', 24: '24장', 32: '32장' }, '장수'),
+    pick('size', { 16: '16칸', 24: '24칸', 32: '32칸', 40: '40칸', 48: '48칸', 64: '64칸' }, '틀 크기'),
+    pick('fps', { 6: '초당 6장', 8: '초당 8장', 10: '초당 10장', 12: '초당 12장', 16: '초당 16장', 20: '초당 20장', 24: '초당 24장' }, '빠르기'),
+    check('loop', '계속 반복'), pick('anchor', { center: '가운데', bottom: '발밑' }, '기준점'),
+    el('h2', { textContent: '사라짐' }), pick('fade', PIXFX_FADES, '사라짐'), slide('fadeStr', '사라짐 세기', 0, 1, 0.05, pct),
+    el('h2', { textContent: '색' }), pick('palette', Object.fromEntries(Object.keys(PIXFX_PAL).map(k => [k, k])), '팔레트'));
+  const sw = el('div', { className: 'swatches' });
+  pixfxColors(p).forEach((c, i) => { const inp = el('input', { type: 'color', value: c, title: ['가장 어두움', '어두움', '가운데', '밝음', '가장 밝음'][i] }); inp.onchange = () => { const cs = pixfxColors(p).slice(); cs[i] = inp.value; set('colors', cs); }; sw.append(inp); });
+  R.append(row(p.colors ? '고친 색' : '5단계', sw),
+    check('shades', '여러 명암'), ...(p.shades ? [slide('range', '명암 범위', 0, 1, 0.05, pct)] : []),
+    check('colorLife', '갈수록 어둡게'), check('outline', '테두리'), check('glow', '빛나게(더하기)'));
+  const seed = el('input', { type: 'number', value: p.seed, min: 1, 'aria-label': '씨앗' }); seed.onchange = () => set('seed', Math.max(1, +seed.value | 0));
+  const dice = el('button', { textContent: '다른 모양' }); dice.onclick = () => set('seed', 1 + Math.floor(Math.random() * 99999));
+  R.append(row('씨앗', el('div', { className: 'seed' }, seed, dice)));
+  $('name').value = p.name;
+  const sl = $('slot'); sl.replaceChildren(...Object.entries(PIXFX_SLOTS).map(([v, n]) => el('option', { value: v, textContent: '게임: ' + n, selected: p.slot === v })));
+}
+$('name').oninput = () => { p.name = $('name').value.trim() || '새 이펙트'; save(); };
+$('slot').onchange = () => { p.slot = $('slot').value; save(); drawGame(); };
+
+// ---------- 무작위 ----------
+const any = o => { const k = Object.keys(o); return k[Math.floor(Math.random() * k.length)]; };
+$('random').onclick = () => {
+  const r = Math.random, move = any(PIXFX_MOVES), shapes = [any(PIXFX_SHAPES)]; if (r() < 0.5) shapes.push(any(PIXFX_SHAPES));
+  const loop = ['float', 'fall'].includes(move) || r() < 0.2;
+  p = pixfxFill({ name: p.name, slot: p.slot, seed: 1 + Math.floor(r() * 99999), move, emitter: any(PIXFX_EMITTERS), emitR: +(r() * 0.8).toFixed(2), chaos: +(0.1 + r() * 0.7).toFixed(2),
+    count: 8 + Math.floor(r() * 36), psize: 1 + Math.floor(r() * 4), sizeLife: any(PIXFX_SIZELIFE), shapes: [...new Set(shapes)], speed: +(0.6 + r() * 0.8).toFixed(2), gravity: r() < 0.3 ? +(r() * 1.2).toFixed(2) : 0,
+    spin: +(r() * 3 - 1.5).toFixed(1), spawn: +(r() * 0.6).toFixed(2), fade: any(PIXFX_FADES), fadeStr: 1, palette: any(PIXFX_PAL), shades: r() < 0.7, range: +(0.2 + r() * 0.6).toFixed(2),
+    colorLife: r() < 0.7, outline: r() < 0.3, glow: r() < 0.5, loop, frames: [8, 12, 16, 20, 24][Math.floor(r() * 5)], size: [32, 40, 48][Math.floor(r() * 3)], fps: [12, 16, 20][Math.floor(r() * 3)] });
+  changed();
+};
+
+// ---------- 그리기 ----------
+let FR = null, heroImgs = [];
+function build(quick) { FR = pixfxFrames(p); if (!quick) panels(); strip(); }
+function frameNow(now) {
+  if (!playing) return hold;
+  const n = FR.frames.length, t = (now - t0) / 1000 * p.fps;
+  if (p.loop) return Math.floor(t) % n;
+  const cyc = n + Math.round(p.fps * 0.4); // 한 번 터진 뒤 조금 쉬었다 다시
+  const k = Math.floor(t) % cyc; return k < n ? k : -1;
+}
+function checker(g, w, h, s) { for (let y = 0; y < h; y += s) for (let x = 0; x < w; x += s) { g.fillStyle = ((x + y) / s) % 2 ? getVar('--check1') : getVar('--check2'); g.fillRect(x, y, s, s); } }
+const vars = {}; const getVar = n => vars[n] || (vars[n] = getComputedStyle(document.documentElement).getPropertyValue(n).trim());
+function paintBg(g, w, h, cell) {
+  if (view.bg === 'check') checker(g, w, h, cell * 4);
+  else { g.fillStyle = getVar(view.bg === 'sky' ? '--sky' : '--dark'); g.fillRect(0, 0, w, h); }
+}
+function drawBig(k) {
+  const c = $('big'), S = p.size, box = Math.min(520, c.parentElement.clientWidth - 24), Z = view.zoom || Math.max(2, Math.floor(box / S));
+  if (c.width !== S * Z || c.height !== S * Z) { c.width = S * Z; c.height = S * Z; }
+  const g = c.getContext('2d'); g.imageSmoothingEnabled = false; paintBg(g, c.width, c.height, Z);
+  if (k >= 0) { const o = g.globalCompositeOperation; if (p.glow) g.globalCompositeOperation = 'lighter'; g.drawImage(FR.frames[k], 0, 0, c.width, c.height); g.globalCompositeOperation = o; }
+}
+function drawGame(k = frameNow(performance.now())) {
+  const c = $('game'), LW = 200, LH = 110, Z = 3, GY = 100; if (c.width !== LW * Z) { c.width = LW * Z; c.height = LH * Z; }
+  const g = c.getContext('2d'); g.setTransform(Z, 0, 0, Z, 0, 0); g.imageSmoothingEnabled = false;
+  g.fillStyle = getVar(view.bg === 'dark' ? '--dark' : '--sky'); g.fillRect(0, 0, LW, LH);
+  g.fillStyle = getVar('--grass'); g.fillRect(0, GY, LW, 3); g.fillStyle = getVar('--dirt'); g.fillRect(0, GY + 3, LW, LH);
+  const hx = 50; // 주인공 (게임처럼 오른쪽을 본다)
+  g.save(); g.translate(hx + 24, GY - 56); g.scale(-1, 1); for (const im of heroImgs) if (im) g.drawImage(im, 0, 0, 48, 56); g.restore();
+  const atHero = p.slot === '레벨업', x = atHero ? hx : 140, y = p.anchor === 'bottom' ? GY : atHero ? GY - 28 : GY - 20;
+  if (k >= 0) pixfxDraw(g, p, x, y, (k + 0.5) / FR.frames.length, 2);
+}
+function strip() {
+  const box = $('strip'); box.replaceChildren();
+  const z = Math.max(1, Math.floor(64 / p.size) || 1);
+  FR.frames.forEach((f, i) => {
+    const c = el('canvas', { width: p.size * z, height: p.size * z, title: `${i + 1}장` }), g = c.getContext('2d'); g.imageSmoothingEnabled = false;
+    paintBg(g, c.width, c.height, z); g.drawImage(f, 0, 0, c.width, c.height);
+    c.onclick = () => { playing = false; hold = i; viewBar(); }; box.append(c);
+  });
+}
+function viewBar() {
+  const b = $('viewBar'); b.replaceChildren();
+  const btn = (txt, on, fn) => { const e = el('button', { textContent: txt, className: on ? 'on' : '' }); e.onclick = fn; b.append(e); };
+  btn(playing ? '멈춤' : '재생', false, () => { playing = !playing; t0 = performance.now(); viewBar(); });
+  b.append(el('span', { textContent: '배경' }));
+  for (const [v, n] of [['check', '체크'], ['sky', '하늘'], ['dark', '어둡게']]) btn(n, view.bg === v, () => { view.bg = v; save(); viewBar(); strip(); });
+  b.append(el('span', { textContent: '확대' }));
+  for (const [v, n] of [[0, '맞춤'], [4, '4배'], [8, '8배'], [12, '12배']]) btn(n, view.zoom === v, () => { view.zoom = v; save(); viewBar(); });
+}
+let lastK = -2;
+function loop(now) {
+  const k = frameNow(now);
+  if (k !== lastK) { drawBig(k); drawGame(k); document.querySelectorAll('#strip canvas').forEach((c, i) => c.classList.toggle('cur', i === k)); lastK = k; }
+  requestAnimationFrame(loop);
+}
+window.addEventListener('resize', () => { lastK = -2; });
+
+// ---------- 저장 ----------
+const msg = (t, bad) => { const m = $('msg'); m.textContent = t; m.className = 'note' + (bad ? ' bad' : ''); };
+const fileName = n => n.replace(/[\\/:*?"<>|]/g, '_').trim() || '이펙트';
+const clean = () => { const o = {}; for (const k of Object.keys(PIXFX_DEFAULT)) o[k] = p[k]; return o; };
+const listJs = items => '// 이펙트 에디터에서 저장한 이펙트 (에셋/이펙트/*.json 에서 만든다. 손으로 고치지 않는다)\nconst PIXFX_LIST = [\n' + items.map(it => '  ' + JSON.stringify(it) + ',\n').join('') + '];\n';
+function download(name, blob) { const a = el('a', { href: URL.createObjectURL(blob), download: name }); document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }
+const sheetBlob = () => new Promise(res => pixfxSheet(p).toBlob(res, 'image/png'));
+$('png').onclick = async () => { download(fileName(p.name) + '.png', await sheetBlob()); msg(`PNG 시트를 받았습니다 (${p.frames}장 × ${p.size}칸).`); };
+$('copy').onclick = async () => { try { await navigator.clipboard.writeText(JSON.stringify(clean())); msg('설정을 복사했습니다.'); } catch (e) { msg('복사가 막혔습니다. PNG 시트 받기를 쓰세요.', true); } };
+
+// 프로젝트 폴더 연결 (한 번 고르면 기억한다) → 에셋/이펙트/ 와 코드/그림/pixfx_list.js 에 바로 쓴다
+const idb = (mode, fn) => new Promise((res, rej) => { const r = indexedDB.open('pixfx', 1); r.onupgradeneeded = () => r.result.createObjectStore('h'); r.onerror = () => rej(r.error); r.onsuccess = () => { const tx = r.result.transaction('h', mode), q = fn(tx.objectStore('h')); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }; });
+let root = null;
+async function projectDir(ask) {
+  if (!window.showDirectoryPicker) return null;
+  if (!root) root = await idb('readonly', s => s.get('root')).catch(() => null);
+  if (root && (await root.queryPermission({ mode: 'readwrite' })) === 'granted') return root;
+  if (!ask) return null;
+  if (root && (await root.requestPermission({ mode: 'readwrite' })) === 'granted') return root;
+  const d = await window.showDirectoryPicker({ id: 'marifan', mode: 'readwrite' });
+  try { await d.getDirectoryHandle('코드'); await d.getDirectoryHandle('에셋'); } catch (e) { throw new Error('"스몰 방치형 게임" 폴더(코드·에셋 폴더가 있는 곳)를 골라 주세요.'); }
+  root = d; await idb('readwrite', s => s.put(d, 'root')).catch(() => {}); return root;
+}
+const fxDir = async r => (await r.getDirectoryHandle('에셋')).getDirectoryHandle('이펙트', { create: true });
+async function write(dir, name, data) { const f = await (await dir.getFileHandle(name, { create: true })).createWritable(); await f.write(data); await f.close(); }
+async function readAll(r) {
+  const dir = await fxDir(r), items = [];
+  for await (const [n, h] of dir.entries()) if (h.kind === 'file' && n.endsWith('.json')) { try { items.push(JSON.parse(await (await h.getFile()).text())); } catch (e) { /* 깨진 파일은 건너뜀 */ } }
+  return items.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+}
+async function rebuildList(r) { const items = await readAll(r); await write(await (await r.getDirectoryHandle('코드')).getDirectoryHandle('그림'), 'pixfx_list.js', listJs(items)); return items; }
+$('save').onclick = async () => {
+  if (!window.showDirectoryPicker) { // 폴더에 못 쓰는 브라우저: 받아서 옮기기
+    download(fileName(p.name) + '.json', new Blob([JSON.stringify(clean(), null, 1)], { type: 'application/json' })); download(fileName(p.name) + '.png', await sheetBlob());
+    msg('이 브라우저는 폴더에 바로 못 씁니다. 받은 두 파일을 에셋/이펙트/에 넣고 python 도구/에셋변환/이펙트넣기.py 를 돌리세요.', true); return;
+  }
+  try {
+    const r = await projectDir(true), dir = await fxDir(r), n = fileName(p.name);
+    await write(dir, n + '.json', JSON.stringify(clean(), null, 1)); await write(dir, n + '.png', await sheetBlob());
+    const items = await rebuildList(r); mine(items);
+    msg(`저장했습니다: 에셋/이펙트/${n}.json · .png, 게임 목록 ${items.length}개. 게임을 다시 켜면 나옵니다.`);
+  } catch (e) { if (e.name !== 'AbortError') msg(e.message, true); }
+};
+
+// ---------- 목록 ----------
+function presets() {
+  const mk = pr => { const b = el('button', { textContent: pr.name }); b.onclick = () => { p = pixfxFill(pr); changed(); }; return b; };
+  $('presets').replaceChildren(...PRESETS.map(mk));
+  $('bases').replaceChildren(...Object.keys(PIXFX_BASE).map(k => mk((typeof PIXFX_LIST !== 'undefined' && PIXFX_LIST.find(e => e.slot === k)) || PIXFX_BASE[k])));
+}
+let armed = null;
+function mine(items) {
+  const box = $('mine'); box.replaceChildren();
+  if (!items.length) box.append(el('span', { className: 'note', textContent: '아직 없습니다.' }));
+  for (const it of items) {
+    const load = el('button', { textContent: it.name }); load.onclick = () => { p = pixfxFill(it); changed(); };
+    const del = el('button', { textContent: armed === it.name ? '정말 지우기' : '지우기', className: 'warn' });
+    del.onclick = async () => {
+      if (armed !== it.name) { armed = it.name; mine(items); return; }
+      armed = null;
+      try { const r = await projectDir(true), dir = await fxDir(r), n = fileName(it.name); await dir.removeEntry(n + '.json').catch(() => {}); await dir.removeEntry(n + '.png').catch(() => {}); mine(await rebuildList(r)); msg(`지웠습니다: ${it.name}`); } catch (e) { if (e.name !== 'AbortError') msg(e.message, true); }
+    };
+    box.append(el('div', { className: 'item' }, load, el('small', { textContent: it.slot ? '· ' + it.slot : '' }), ...(window.showDirectoryPicker ? [del] : [])));
+  }
+}
+async function loadMine() {
+  const r = await projectDir(false).catch(() => null);
+  $('dirNote').textContent = r ? '(프로젝트 폴더에서 읽음)' : window.showDirectoryPicker ? '(게임에 들어간 목록. 처음 저장할 때 프로젝트 폴더를 한 번 고릅니다)' : '(게임에 들어간 목록)';
+  mine(r ? await readAll(r) : typeof PIXFX_LIST !== 'undefined' ? PIXFX_LIST : []);
+}
+
+// ---------- 시작 ----------
+const HERO = ['몸_기본', '하의_기본', '상의_기본', '머리/머리_뾰족 머리'];
+Promise.all(HERO.map(n => new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = `../에셋/캐릭터/${n}.png`; }))).then(ims => { heroImgs = ims; lastK = -2; });
+build(); viewBar(); presets(); loadMine(); requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+[
+ {
+  "file": "에셋/몬스터/4지역/등불 해파리.png",
+  "id": "jelly",
+  "n": "등불 해파리",
+  "role": "ranged",
+  "scale": 2,
+  "fly": 10,
+  "anim": {
+   "kind": "hop"
+  }
+ },
+ {
+  "file": "에셋/몬스터/4지역/개구리 기사.png",
+  "id": "frogKnight",
+  "n": "개구리 기사",
+  "role": "swarm",
+  "scale": 2,
+  "anim": {
+   "kind": "hop",
+   "top": 4
+  }
+ },
+ {
+  "file": "에셋/몬스터/4지역/집게게.png",
+  "id": "crab",
+  "n": "집게게",
+  "role": "tank",
+  "scale": 2,
+  "anim": {
+   "kind": "scuttle",
+   "foot": 13,
+   "band": 4
+  }
+ },
+ {
+  "file": "에셋/몬스터/4지역/익사한 등불 유령.png",
+  "id": "lampGhost",
+  "n": "익사한 등불 유령",
+  "role": "ranged",
+  "scale": 2,
+  "fly": 10,
+  "anim": {
+   "kind": "flap",
+   "wingBox": [
+    0,
+    5,
+    5,
+    26
+   ]
+  }
+ },
+ {
+  "file": "에셋/몬스터/4지역/종을 쓴 대왕문어.png",
+  "id": "bellOctopus",
+  "n": "종을 쓴 대왕문어",
+  "role": "boss",
+  "scale": 2,
+  "anim": {
+   "kind": "scuttle",
+   "foot": 22,
+   "band": 6,
+   "fps": 6
+  }
+ }
+]

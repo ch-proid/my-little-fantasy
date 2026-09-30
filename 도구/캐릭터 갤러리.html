@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>캐릭터 갤러리</title>
+<style>
+  @font-face { font-family: 'Galmuri11'; src: url('../글꼴/Galmuri11.woff2') format('woff2'); font-weight: 400; }
+  @font-face { font-family: 'Galmuri11'; src: url('../글꼴/Galmuri11-Bold.woff2') format('woff2'); font-weight: 700; }
+  :root { --bg: #3a2418; --card: #5a3a28; --edge: #2e1a10; --line: #8a6040; --cream: #f6e6c8; --sub: #c9a986; --gold: #ffd24d; --bad: #ff8a7a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: radial-gradient(ellipse at top, #5a3a28, var(--bg) 70%) fixed; color: var(--cream); font: 14px/1.5 "Galmuri11", "Malgun Gothic", sans-serif; }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 20px 16px 60px; }
+  h1 { margin: 0; font-size: 26px; color: #ffe8b0; text-shadow: 0 3px 0 #7a3a10; }
+  header p { margin: 4px 0; color: var(--sub); }
+  header p b { color: var(--gold); }
+  .bar { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  .bar > span { color: var(--sub); margin-right: 2px; }
+  button { font: inherit; color: var(--cream); background: #472c1e; border: 2px solid var(--line); border-radius: 12px; padding: 3px 11px; cursor: pointer; }
+  button.on { background: #f0a860; color: #5a3420; border-color: #ffd8a0; font-weight: bold; }
+  button:disabled { opacity: 0.4; cursor: default; }
+  section { margin-top: 20px; background: rgba(0,0,0,0.18); border: 2px solid #6a4430; border-radius: 16px; padding: 12px 14px 16px; }
+  h2 { margin: 0 0 8px; font-size: 18px; }
+  h2 small { color: var(--sub); font-size: 12px; font-weight: normal; margin-left: 8px; }
+  .main { display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-start; }
+  .big { image-rendering: pixelated; border-radius: 10px; max-width: 100%; }
+  .side { display: flex; flex-direction: column; gap: 10px; min-width: 280px; flex: 1; }
+  .pick { display: grid; grid-template-columns: 70px 36px 1fr 36px; gap: 6px; align-items: center; }
+  .pick b { font-size: 13px; }
+  .pick .name { text-align: center; background: #2e1a10; border-radius: 8px; padding: 3px 6px; font-size: 13px; }
+  .pick .name.miss { color: var(--bad); }
+  canvas.stage { image-rendering: pixelated; border-radius: 10px; max-width: 100%; align-self: flex-start; } /* 옆 칸 너비로 늘어나지 않게 */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 124px), 1fr)); gap: 8px; }
+  .card { background: var(--card); border: 2px solid var(--line); border-radius: 12px; padding: 6px; text-align: center; cursor: pointer; box-shadow: 0 3px 0 var(--edge); }
+  .card.on { border-color: var(--gold); }
+  .card canvas { image-rendering: pixelated; width: 96px; height: 112px; }
+  .card div { font-size: 12px; }
+  .card .miss { color: var(--bad); }
+  .note { color: var(--sub); font-size: 12px; margin: 6px 0 0; }
+  .note.bad { color: var(--bad); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>캐릭터 갤러리</h1>
+    <p><b>에셋/캐릭터</b>의 PNG를 고쳐 저장한 뒤 이 창에서 <b>F5</b>를 누르면 바로 바뀝니다. 고른 조합과 보기 설정은 F5를 눌러도 남습니다.</p>
+    <p>게임에 넣을 때는 <b>python 도구/에셋변환/주인공.py 넣기</b>. 새 PNG 파일은 넣기를 한 번 돌린 뒤부터 목록에 나옵니다(이름 목록을 게임 코드에서 읽기 때문). 새 파일을 이 창에 끌어다 놓으면 넣기 전에도 미리 볼 수 있습니다.</p>
+    <div class="bar" id="zoomBar"><span>배율</span></div>
+    <div class="bar" id="motionBar"><span>움직임</span></div>
+    <div class="bar" id="viewBar"><span>보기</span></div>
+  </header>
+
+  <section>
+    <h2>지금 조합 <small>큰 그림은 칸 1개가 네모 1개. 노란 십자 = 무기를 쥐는 자리, 하늘색 = 눈 자리(헤어 기준)</small></h2>
+    <div class="main">
+      <canvas class="big" id="big"></canvas>
+      <div class="side">
+        <div id="picks"></div>
+        <canvas class="stage" id="stage"></canvas>
+        <p class="note">위: 게임과 같은 크기(2배)로, 검을 쥐고 걷는 모습. 아래 네 장: 걷기 그림(딛기 → 한 발 → 딛기 → 다른 발).</p>
+        <canvas class="stage" id="frames"></canvas>
+        <p class="note" id="warn"></p>
+      </div>
+    </div>
+  </section>
+  <section><h2>헤어 <small>지금 옷을 입힌 채로</small></h2><div class="cards" id="hairs"></div></section>
+  <section><h2>상의 <small>지금 하의·헤어와 함께</small></h2><div class="cards" id="tops"></div></section>
+  <section><h2>하의 <small>지금 상의·헤어와 함께</small></h2><div class="cards" id="bottoms"></div></section>
+  <section><h2>코스튬 <small>입으면 상의·하의 대신 겹친다</small></h2><div class="cards" id="costumes"></div></section>
+  <section><h2>파츠 낱장 <small>지금 조합의 파츠를 하나씩 (PNG 그대로, 투명은 체크무늬)</small></h2><div class="cards" id="layers"></div></section>
+</div>
+<!-- 테두리 메우기 (art.js sealLine 과 같은 규칙): 테두리가 아닌 칸(RGB 합 200 이상) 옆 빈칸에 테두리색. 픽셀을 못 읽으니 필터로 한다 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="sealLine" filterUnits="userSpaceOnUse" x="-4" y="-4" width="400" height="400" color-interpolation-filters="sRGB">
+  <feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  255 255 255 0 -199" result="fill"/>
+  <feOffset in="fill" dx="1" result="r"/><feOffset in="fill" dx="-1" result="l"/><feOffset in="fill" dy="1" result="d"/><feOffset in="fill" dy="-1" result="u"/>
+  <feMerge result="near"><feMergeNode in="r"/><feMergeNode in="l"/><feMergeNode in="d"/><feMergeNode in="u"/></feMerge>
+  <feComposite in="near" in2="SourceAlpha" operator="out" result="gap"/>
+  <feFlood flood-color="#341816"/><feComposite in2="gap" operator="in" result="line"/>
+  <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="line"/></feMerge>
+</filter></svg>
+<script src="../코드/그림/art.js"></script>
+<script src="../코드/그림/fx.js"></script>
+<script src="../코드/그림/pixfx.js"></script>
+<script src="../코드/그림/pixfx_list.js"></script>
+<script src="../코드/그림/forge.js"></script>
+<script src="../코드/그림/core.js"></script>
+<script src="../코드/게임/data.js"></script>
+<script>
+'use strict';
+(() => { // 게임 코드(art.js 등)의 전역 이름과 부딪치지 않게 감싼다
+// PNG를 직접 불러와 겹친다. 픽셀을 읽지 않고(파일에서 연 페이지는 읽기가 막힌다) 그리기만으로 게임과 같은 걷기 그림을 만든다 (코드/그림/art.js 의 heroWalk 와 같은 규칙).
+const W = 24, H = 28; // 주인공 틀 (양옆 3칸은 뻗는 머리칼·옷자락 자리)
+const PAD = (W - 18) / 2; // 몸이 있는 18칸의 시작
+const KIND = { base: ['몸', ['', '몸/']], hair: ['머리', ['머리/', '']], top: ['상의', ['', '상의/']], bottom: ['하의', ['', '하의/']], costume: ['코스튬', ['코스튬/', '']] };
+const PARTS = [['hair', '헤어'], ['top', '상의'], ['bottom', '하의'], ['costume', '코스튬']];
+const store = { get(k, d) { try { const v = localStorage.getItem('charGallery.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem('charGallery.' + k, JSON.stringify(v)); } catch (e) { /* 저장 안 됨: 괜찮다 */ } } };
+const names = kind => (kind === 'costume' ? ['없음'] : []).concat(Object.keys((HERO_PARTS[kind] || {})), Object.keys(dropped[kind]));
+const dropped = { base: {}, hair: {}, top: {}, bottom: {}, costume: {} };
+const imgs = {}, missing = new Set();
+const bust = Date.now();
+function loadPart(kind, name) {
+  const key = kind + '|' + name;
+  if (imgs[key] !== undefined) return Promise.resolve(imgs[key]);
+  if (dropped[kind][name]) return Promise.resolve(imgs[key] = dropped[kind][name]);
+  const [pre, dirs] = KIND[kind];
+  return new Promise(res => {
+    let i = 0;
+    const tryNext = () => {
+      if (i >= dirs.length) { missing.add(key); imgs[key] = null; res(null); return; }
+      const im = new Image(); im.onload = () => { imgs[key] = im; res(im); }; im.onerror = tryNext;
+      im.src = `../에셋/캐릭터/${dirs[i++]}${pre}_${name}.png?${bust}`;
+    };
+    tryNext();
+  });
+}
+let sel = Object.assign({ hair: '뾰족 머리', top: '기본', bottom: '기본', costume: '없음' }, store.get('sel', {}));
+let zoom = store.get('zoom', 12), motion = store.get('motion', 'walk'), view = store.get('view', { grid: true, flip: false, bg: 'blue' });
+const BGS = { blue: '#3a5aa8', light: '#d8d8d8', dark: '#1a1420' };
+for (const k of Object.keys(sel)) if (!names(k).includes(sel[k])) sel[k] = names(k)[0];
+
+// ---------- 겹치기와 걷기 그림 ----------
+const cv = (w = W, h = H) => { const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'); g.imageSmoothingEnabled = false; return [c, g]; };
+async function compose(s) {
+  const L = [await loadPart('base', '기본')];
+  if (s.costume !== '없음') L.push(await loadPart('costume', s.costume)); else L.push(await loadPart('bottom', s.bottom), await loadPart('top', s.top));
+  L.push(await loadPart('hair', s.hair));
+  const [c, g] = cv(); for (const im of L) if (im) g.drawImage(im, 0, 0); return c;
+}
+const LEG = H - 5, HALF = W / 2;
+function liftLeg(src, left) { // 한쪽 다리(아래 5줄) 1칸 들기
+  const [c, g] = cv(); g.drawImage(src, 0, 0);
+  const x0 = left ? 0 : HALF, w = HALF;
+  g.clearRect(x0, LEG, w, 5); g.drawImage(src, x0, LEG + 1, w, 4, x0, LEG, w, 4); return c;
+}
+function freeHand(src, dx) { // 빈손(오른쪽 아래 18~21줄, 11칸부터) 1칸 옮기기. 오른쪽으로 옮길 때 비는 칸은 왼쪽 옆 칸 색으로
+  const [c, g] = cv(), X = HALF + 2, Y = LEG - 5, RW = W - X, RH = 4; g.drawImage(src, 0, 0);
+  g.clearRect(X, Y, RW, RH);
+  if (dx > 0) { const [t, tg] = cv(1, RH); tg.drawImage(src, X, Y, 1, RH, 0, 0, 1, RH); tg.globalCompositeOperation = 'source-in'; tg.drawImage(src, X - 1, Y, 1, RH, 0, 0, 1, RH); g.drawImage(t, X, Y); }
+  g.drawImage(src, X, Y, RW, RH, X + dx, Y, RW, RH); return c;
+}
+function stepDown(src) { // 딛기: 다리 위 몸 전체(머리칼 포함)가 1칸 내려앉는다
+  const [c, g] = cv(); g.drawImage(src, 0, LEG - 1, W, H - LEG + 1, 0, LEG - 1, W, H - LEG + 1);
+  g.drawImage(src, 0, 0, W, LEG - 1, 0, 1, W, LEG - 1); return c;
+}
+const seal = src => { const [c, g] = cv(src.width, src.height); g.filter = 'url(#sealLine)'; g.drawImage(src, 0, 0); return c; }; // 움직여서 드러난 곳에 테두리
+const frames = base => ({ A: base, D: seal(stepDown(base)), B: seal(freeHand(liftLeg(base, true), -1)), C: seal(freeHand(liftLeg(base, false), 1)) });
+const flip = src => { const [c, g] = cv(src.width, src.height); g.translate(src.width, 0); g.scale(-1, 1); g.drawImage(src, 0, 0); return c; };
+
+// ---------- 그리기 ----------
+let F = null, FF = null, t0 = performance.now();
+function frameNow(t) {
+  if (motion === 'stand') return 'A';
+  if (motion === 'breath') return Math.floor(t * 1.4) % 2 ? 'D' : 'A';
+  return ['D', 'B', 'D', 'C'][Math.floor(t * 7) % 4];
+}
+function drawBig(t) {
+  const c = document.getElementById('big'), k = frameNow(t), src = (view.flip ? FF : F)[k];
+  c.width = W * zoom; c.height = H * zoom; const g = c.getContext('2d'); g.imageSmoothingEnabled = false;
+  g.fillStyle = BGS[view.bg]; g.fillRect(0, 0, c.width, c.height);
+  g.drawImage(src, 0, 0, c.width, c.height);
+  if (view.grid) { g.strokeStyle = 'rgba(255,255,255,0.12)'; g.lineWidth = 1; for (let x = 0; x <= W; x++) { g.beginPath(); g.moveTo(x * zoom + 0.5, 0); g.lineTo(x * zoom + 0.5, c.height); g.stroke(); } for (let y = 0; y <= H; y++) { g.beginPath(); g.moveTo(0, y * zoom + 0.5); g.lineTo(c.width, y * zoom + 0.5); g.stroke(); } }
+  // 눈 자리(몸_기본의 눈: 5·9칸 10~11줄)와 무기 쥐는 자리(몸 가운데 +5칸, 발바닥 위 8칸)
+  const ex = view.flip ? [W - 1 - 5 - PAD, W - 1 - 9 - PAD] : [5 + PAD, 9 + PAD], dy = k === 'D' ? 1 : 0;
+  g.strokeStyle = 'rgba(120,220,255,0.9)'; g.lineWidth = 2; for (const x of ex) g.strokeRect(x * zoom + 1, (10 + dy) * zoom + 1, zoom - 2, zoom * 2 - 2);
+  const hx = (view.flip ? W / 2 + 5 : W / 2 - 5) * zoom, hy = (H - 8 + dy) * zoom;
+  g.strokeStyle = '#ffe040'; g.lineWidth = 2; g.beginPath(); g.moveTo(hx - zoom, hy); g.lineTo(hx + zoom, hy); g.moveTo(hx, hy - zoom); g.lineTo(hx, hy + zoom); g.stroke();
+}
+function drawStage(t) { // 게임 크기(논리 px = 주인공 칸의 절반) × 3 으로 확대해 보여 준다
+  const c = document.getElementById('stage'), S = 3, LW = 150, LH = 70; c.width = LW * S; c.height = LH * S;
+  const g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.setTransform(S, 0, 0, S, 0, 0);
+  g.fillStyle = BGS[view.bg]; g.fillRect(0, 0, LW, LH); const GY = LH - 8; g.fillStyle = '#5ac04a'; g.fillRect(0, GY, LW, 3); g.fillStyle = '#c98f58'; g.fillRect(0, GY + 3, LW, 5);
+  const k = frameNow(t), src = FF[k], x = 50, bob = k === 'D' ? 2 : 0; // 게임은 오른쪽을 본다
+  g.drawImage(src, Math.round(x - W), GY - H * 2, W * 2, H * 2);
+  const d = DESIGNS.s0, f = forge(d, 45), hx = x + HAND_DX, hy = GY - 16 + bob;
+  g.drawImage(f.c, hx - f.S / 2 * WSCALE, hy - f.S / 2 * WSCALE, f.S * WSCALE, f.S * WSCALE);
+  g.drawImage(src, Math.round(100 - W), GY - H * 2, W * 2, H * 2); // 무기 없이
+}
+function drawFrames() {
+  const c = document.getElementById('frames'), Z = 5; c.width = (W * Z + 10) * 4; c.height = H * Z;
+  const g = c.getContext('2d'); g.imageSmoothingEnabled = false;
+  ['D', 'B', 'D', 'C'].forEach((k, i) => { g.fillStyle = BGS[view.bg]; g.fillRect(i * (W * Z + 10), 0, W * Z, H * Z); g.drawImage((view.flip ? FF : F)[k], i * (W * Z + 10), 0, W * Z, H * Z); });
+}
+function checker(g, w, h, s) { for (let y = 0; y < h; y += s) for (let x = 0; x < w; x += s) { g.fillStyle = ((x + y) / s) % 2 ? '#6a6a7a' : '#8a8a9a'; g.fillRect(x, y, s, s); } }
+async function cards(id, kind) {
+  const box = document.getElementById(id); box.replaceChildren();
+  for (const n of names(kind)) {
+    const s = { ...sel, [kind]: n }; if (kind === 'top' || kind === 'bottom') s.costume = '없음';
+    const im = await compose(s), c = document.createElement('canvas'); c.width = W * 4; c.height = H * 4;
+    const g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.fillStyle = BGS[view.bg]; g.fillRect(0, 0, c.width, c.height); g.drawImage(view.flip ? flip(im) : im, 0, 0, c.width, c.height);
+    const card = document.createElement('div'); card.className = 'card' + (sel[kind] === n ? ' on' : '');
+    const miss = n !== '없음' && missing.has(kind + '|' + n);
+    card.append(c, Object.assign(document.createElement('div'), { textContent: n + (miss ? ' (파일 없음)' : ''), className: miss ? 'miss' : '' }));
+    card.onclick = () => { sel[kind] = n; if ((kind === 'top' || kind === 'bottom')) sel.costume = '없음'; refresh(); };
+    box.append(card);
+  }
+}
+async function layerCards() {
+  const box = document.getElementById('layers'); box.replaceChildren();
+  const list = [['base', '기본']].concat(sel.costume !== '없음' ? [['costume', sel.costume]] : [['bottom', sel.bottom], ['top', sel.top]], [['hair', sel.hair]]);
+  for (const [kind, n] of list) {
+    const im = await loadPart(kind, n), c = document.createElement('canvas'); c.width = W * 4; c.height = H * 4;
+    const g = c.getContext('2d'); g.imageSmoothingEnabled = false; checker(g, c.width, c.height, 8); if (im) g.drawImage(im, 0, 0, c.width, c.height);
+    const card = document.createElement('div'); card.className = 'card';
+    card.append(c, Object.assign(document.createElement('div'), { textContent: `${KIND[kind][0]}_${n}.png` + (im ? '' : ' (없음)'), className: im ? '' : 'miss' }));
+    box.append(card);
+  }
+}
+function picks() {
+  const box = document.getElementById('picks'); box.replaceChildren();
+  for (const [kind, label] of PARTS) {
+    const list = names(kind), locked = sel.costume !== '없음' && (kind === 'top' || kind === 'bottom');
+    const turn = d => { sel[kind] = list[(list.indexOf(sel[kind]) + d + list.length) % list.length]; refresh(); };
+    const row = document.createElement('div'); row.className = 'pick';
+    const b = (txt, d) => { const e = document.createElement('button'); e.textContent = txt; e.disabled = locked || list.length < 2; e.onclick = () => turn(d); return e; };
+    const miss = sel[kind] !== '없음' && missing.has(kind + '|' + sel[kind]);
+    row.append(Object.assign(document.createElement('b'), { textContent: label }), b('◀', -1), Object.assign(document.createElement('div'), { className: 'name' + (miss ? ' miss' : ''), textContent: sel[kind] + (locked ? ' (코스튬 입음)' : '') + (miss ? ' — 파일 없음' : '') }), b('▶', 1));
+    box.append(row);
+  }
+}
+async function refresh() {
+  store.set('sel', sel); store.set('zoom', zoom); store.set('motion', motion); store.set('view', view);
+  const base = await compose(sel); F = frames(base); FF = { A: flip(F.A), B: flip(F.B), C: flip(F.C), D: flip(F.D) };
+  bars(); picks(); drawFrames();
+  const miss = [...missing];
+  document.getElementById('warn').textContent = miss.length ? '찾지 못한 파일: ' + miss.map(k => k.replace('|', ' ')).join(', ') + ' — 이름이나 폴더를 확인하세요.' : '';
+  document.getElementById('warn').className = 'note' + (miss.length ? ' bad' : '');
+  await cards('hairs', 'hair'); await cards('tops', 'top'); await cards('bottoms', 'bottom'); await cards('costumes', 'costume'); await layerCards();
+}
+function bars() {
+  const mk = (id, items, cur, set) => { const bar = document.getElementById(id); bar.querySelectorAll('button').forEach(b => b.remove()); for (const [v, n] of items) { const b = document.createElement('button'); b.textContent = n; b.className = cur(v) ? 'on' : ''; b.onclick = () => { set(v); refresh(); }; bar.append(b); } };
+  mk('zoomBar', [[8, '8배'], [12, '12배'], [16, '16배']], v => zoom === v, v => { zoom = v; });
+  mk('motionBar', [['stand', '서기'], ['walk', '걷기'], ['breath', '숨쉬기']], v => motion === v, v => { motion = v; });
+  mk('viewBar', [['grid', '칸 선'], ['flip', '게임 방향(오른쪽 봄)'], ['bg:blue', '파란 배경'], ['bg:light', '밝은 배경'], ['bg:dark', '어두운 배경']],
+    v => (v.startsWith('bg:') ? view.bg === v.slice(3) : view[v]), v => { if (v.startsWith('bg:')) view.bg = v.slice(3); else view[v] = !view[v]; });
+}
+function loop(now) { if (F) { const t = (now - t0) / 1000; drawBig(t); drawStage(t); } requestAnimationFrame(loop); }
+// 새 PNG를 끌어다 놓으면 (파일 이름: 머리_이름.png 등) 넣기 전에도 미리 본다
+document.addEventListener('dragover', e => e.preventDefault());
+document.addEventListener('drop', e => {
+  e.preventDefault();
+  for (const f of e.dataTransfer.files) {
+    const m = f.name.match(/^(몸|머리|상의|하의|코스튬)_(.+)\.png$/); if (!m) continue;
+    const kind = Object.keys(KIND).find(k => KIND[k][0] === m[1]), im = new Image();
+    im.onload = () => { dropped[kind][m[2]] = im; delete imgs[kind + '|' + m[2]]; missing.delete(kind + '|' + m[2]); if (kind !== 'base') sel[kind] = m[2]; refresh(); };
+    im.src = URL.createObjectURL(f);
+  }
+});
+refresh(); requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

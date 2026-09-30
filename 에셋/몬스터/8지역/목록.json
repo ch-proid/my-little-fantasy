@@ -1,0 +1,62 @@
+[
+ {
+  "file": "에셋/몬스터/8지역/아기 용.png",
+  "id": "dragonling",
+  "n": "아기 용",
+  "role": "charger",
+  "scale": 2,
+  "anim": {
+   "kind": "walk",
+   "arm": false,
+   "foot": 10
+  }
+ },
+ {
+  "file": "에셋/몬스터/8지역/수정 정령.png",
+  "id": "crystalWisp",
+  "n": "수정 정령",
+  "role": "ranged",
+  "scale": 2,
+  "fly": 10,
+  "anim": {
+   "kind": "hop",
+   "top": 7
+  }
+ },
+ {
+  "file": "에셋/몬스터/8지역/타락한 별 기사.png",
+  "id": "fallenKnight",
+  "n": "타락한 별 기사",
+  "role": "charger",
+  "scale": 2,
+  "anim": {
+   "kind": "walk",
+   "arm": false,
+   "tool": [0, 7],
+   "foot": 17
+  }
+ },
+ {
+  "file": "에셋/몬스터/8지역/용암 골렘.png",
+  "id": "lavaGolem",
+  "n": "용암 골렘",
+  "role": "tank",
+  "scale": 2,
+  "anim": {
+   "kind": "heavy",
+   "foot": 23
+  }
+ },
+ {
+  "file": "에셋/몬스터/8지역/고룡 아우룸의 그림자.png",
+  "id": "aurumShade",
+  "n": "고룡 아우룸의 그림자",
+  "role": "boss",
+  "scale": 2,
+  "anim": {
+   "kind": "flap",
+   "wingBox": [27, 40, 4, 21],
+   "fps": 6
+  }
+ }
+]
