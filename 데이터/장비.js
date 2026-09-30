@@ -6,12 +6,12 @@ const ITEMS_DATA = {
    "name": "일반",
    "prefix": "일반적인",
    "color": "#ffffff",
-   "mul": 1.0,
+   "mul": 1,
    "lines": 0,
    "drop": 62,
    "bossDrop": 0,
    "dismantle": 2,
-   "fx": 1.0,
+   "fx": 1,
    "aura": 0
   },
   {
@@ -54,7 +54,7 @@ const ITEMS_DATA = {
    "name": "판타지아",
    "prefix": "판타지아",
    "color": "#b48cff",
-   "mul": 2.0,
+   "mul": 2,
    "lines": 4,
    "drop": 0.2,
    "bossDrop": 2,
@@ -81,7 +81,7 @@ const ITEMS_DATA = {
    "head": 0.8,
    "body": 1.4,
    "arms": 0.7,
-   "legs": 1.0,
+   "legs": 1,
    "feet": 0.7
   },
   "accessory": {

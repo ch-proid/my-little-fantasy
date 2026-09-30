@@ -1,0 +1,75 @@
+[
+ {
+  "file": "에셋/몬스터/6지역/얼음 방울.png",
+  "id": "iceSlime",
+  "n": "얼음 방울",
+  "role": "swarm",
+  "scale": 2,
+  "anim": {
+   "kind": "hop",
+   "top": 4,
+   "upper": 9
+  }
+ },
+ {
+  "file": "에셋/몬스터/6지역/수정 딱정벌레.png",
+  "id": "crystalBeetle",
+  "n": "수정 딱정벌레",
+  "role": "charger",
+  "scale": 2,
+  "anim": {
+   "kind": "scuttle",
+   "foot": 12,
+   "band": 6
+  }
+ },
+ {
+  "file": "에셋/몬스터/6지역/서리 부엉이.png",
+  "id": "frostOwl",
+  "n": "서리 부엉이",
+  "role": "ranged",
+  "scale": 2,
+  "fly": 10,
+  "anim": {
+   "kind": "flap",
+   "foot": 10
+  }
+ },
+ {
+  "file": "에셋/몬스터/6지역/서리 설인.png",
+  "id": "frostYeti",
+  "n": "서리 설인",
+  "role": "tank",
+  "scale": 2,
+  "anim": {
+   "kind": "heavy",
+   "head": 10,
+   "foot": 20,
+   "arm": [11, 20, 5]
+  }
+ },
+ {
+  "file": "에셋/몬스터/6지역/이글루 흉내쟁이.png",
+  "id": "iglooMimic",
+  "n": "이글루 흉내쟁이",
+  "role": "tank",
+  "scale": 2,
+  "anim": {
+   "kind": "mimic",
+   "upper": 10
+  }
+ },
+ {
+  "file": "에셋/몬스터/6지역/모자 쓴 눈사람 왕.png",
+  "id": "snowKing",
+  "n": "모자 쓴 눈사람 왕",
+  "role": "boss",
+  "scale": 2,
+  "anim": {
+   "kind": "hop",
+   "top": 5,
+   "upper": 24,
+   "fps": 4
+  }
+ }
+]
