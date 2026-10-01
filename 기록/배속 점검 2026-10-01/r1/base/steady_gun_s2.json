@@ -1,0 +1,1270 @@
+{
+ "param": {
+  "wt": "gun",
+  "minutes": 90,
+  "actEvery": 60,
+  "build": "str",
+  "spend": "mix",
+  "retryAfter": 90,
+  "startStage": 1,
+  "name": "steady_gun"
+ },
+ "seed": 2,
+ "wall": 140,
+ "gameT": 5124,
+ "fed": 5400,
+ "hitStopLost": 276,
+ "end": {
+  "stage": "4-5",
+  "stageN": 35,
+  "maxStage": 35,
+  "lv": 37,
+  "gold": 1705,
+  "pts": 0,
+  "kills": 2199,
+  "mode": "auto",
+  "dps": 1376,
+  "hp": 2164,
+  "def": 237.1,
+  "atk": 590,
+  "acc": 90,
+  "bag": 9,
+  "enh": {
+   "weapon": 20,
+   "body": 19,
+   "legs": 19,
+   "feet": 19,
+   "ring1": 19,
+   "neck": 19,
+   "head": 19,
+   "ring2": 19,
+   "arms": 19
+  },
+  "abLv": 11,
+  "eqGrades": "443323213"
+ },
+ "deaths": 0,
+ "boss": {
+  "tries": 57,
+  "wins": 34,
+  "failTime": 23,
+  "failDead": 0,
+  "firstWinAt": 45.56666666666664
+ },
+ "regionAt": {
+  "2": 321,
+  "3": 652,
+  "4": 1010
+ },
+ "gold": {
+  "earned": 80161,
+  "spent": 78456
+ },
+ "drops": [
+  132,
+  94,
+  40,
+  20,
+  3
+ ],
+ "fantasia": 1,
+ "dismantled": 0,
+ "bagFull": 0,
+ "buys": {
+  "equip": 38,
+  "enh": 172,
+  "ab": 10,
+  "roll": 2
+ },
+ "samples": [
+  {
+   "m": 1,
+   "st": "1-2",
+   "lv": 4,
+   "gold": 8,
+   "kills": 16,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 36,
+   "hp": 72
+  },
+  {
+   "m": 2,
+   "st": "1-4",
+   "lv": 7,
+   "gold": 57,
+   "kills": 38,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 80,
+   "hp": 188
+  },
+  {
+   "m": 3,
+   "st": "1-6",
+   "lv": 10,
+   "gold": 6,
+   "kills": 65,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 120,
+   "hp": 300
+  },
+  {
+   "m": 4,
+   "st": "1-8",
+   "lv": 12,
+   "gold": 25,
+   "kills": 94,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 162,
+   "hp": 380
+  },
+  {
+   "m": 5,
+   "st": "1-10",
+   "lv": 14,
+   "gold": 22,
+   "kills": 126,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 181,
+   "hp": 387
+  },
+  {
+   "m": 6,
+   "st": "2-2",
+   "lv": 15,
+   "gold": 73,
+   "kills": 155,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 213,
+   "hp": 436
+  },
+  {
+   "m": 7,
+   "st": "2-3",
+   "lv": 16,
+   "gold": 19,
+   "kills": 179,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 269,
+   "hp": 440
+  },
+  {
+   "m": 8,
+   "st": "2-6",
+   "lv": 18,
+   "gold": 36,
+   "kills": 209,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 352,
+   "hp": 701
+  },
+  {
+   "m": 9,
+   "st": "2-8",
+   "lv": 19,
+   "gold": 38,
+   "kills": 241,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 354,
+   "hp": 856
+  },
+  {
+   "m": 10,
+   "st": "2-9",
+   "lv": 20,
+   "gold": 50,
+   "kills": 265,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 408,
+   "hp": 859
+  },
+  {
+   "m": 11,
+   "st": "3-1",
+   "lv": 21,
+   "gold": 111,
+   "kills": 285,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 515,
+   "hp": 891
+  },
+  {
+   "m": 12,
+   "st": "3-3",
+   "lv": 22,
+   "gold": 67,
+   "kills": 327,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 533,
+   "hp": 942
+  },
+  {
+   "m": 13,
+   "st": "3-5",
+   "lv": 23,
+   "gold": 171,
+   "kills": 359,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 619,
+   "hp": 952
+  },
+  {
+   "m": 14,
+   "st": "3-7",
+   "lv": 24,
+   "gold": 219,
+   "kills": 386,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 721,
+   "hp": 947
+  },
+  {
+   "m": 15,
+   "st": "3-8",
+   "lv": 25,
+   "gold": 87,
+   "kills": 407,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 748,
+   "hp": 1037
+  },
+  {
+   "m": 16,
+   "st": "3-10",
+   "lv": 26,
+   "gold": 131,
+   "kills": 424,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 776,
+   "hp": 1201
+  },
+  {
+   "m": 17,
+   "st": "4-1",
+   "lv": 27,
+   "gold": 276,
+   "kills": 449,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 792,
+   "hp": 1202
+  },
+  {
+   "m": 18,
+   "st": "4-1",
+   "lv": 27,
+   "gold": 30,
+   "kills": 462,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 802,
+   "hp": 1209
+  },
+  {
+   "m": 19,
+   "st": "4-1",
+   "lv": 27,
+   "gold": 111,
+   "kills": 493,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 804,
+   "hp": 1390
+  },
+  {
+   "m": 20,
+   "st": "4-1",
+   "lv": 27,
+   "gold": 127,
+   "kills": 520,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 809,
+   "hp": 1405
+  },
+  {
+   "m": 21,
+   "st": "4-2",
+   "lv": 28,
+   "gold": 325,
+   "kills": 540,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 824,
+   "hp": 1405
+  },
+  {
+   "m": 22,
+   "st": "4-2",
+   "lv": 28,
+   "gold": 146,
+   "kills": 558,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 833,
+   "hp": 1412
+  },
+  {
+   "m": 23,
+   "st": "4-2",
+   "lv": 28,
+   "gold": 13,
+   "kills": 583,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 833,
+   "hp": 1439
+  },
+  {
+   "m": 24,
+   "st": "4-2",
+   "lv": 29,
+   "gold": 288,
+   "kills": 615,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 849,
+   "hp": 1452
+  },
+  {
+   "m": 25,
+   "st": "4-2",
+   "lv": 29,
+   "gold": 102,
+   "kills": 631,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 854,
+   "hp": 1453
+  },
+  {
+   "m": 26,
+   "st": "4-2",
+   "lv": 29,
+   "gold": 20,
+   "kills": 657,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 863,
+   "hp": 1453
+  },
+  {
+   "m": 27,
+   "st": "4-2",
+   "lv": 29,
+   "gold": 270,
+   "kills": 693,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 890,
+   "hp": 1511
+  },
+  {
+   "m": 28,
+   "st": "4-2",
+   "lv": 30,
+   "gold": 367,
+   "kills": 708,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 901,
+   "hp": 1516
+  },
+  {
+   "m": 29,
+   "st": "4-3",
+   "lv": 30,
+   "gold": 130,
+   "kills": 724,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 932,
+   "hp": 1682
+  },
+  {
+   "m": 30,
+   "st": "4-3",
+   "lv": 30,
+   "gold": 412,
+   "kills": 759,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 938,
+   "hp": 1683
+  },
+  {
+   "m": 31,
+   "st": "4-3",
+   "lv": 30,
+   "gold": 67,
+   "kills": 780,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 948,
+   "hp": 1690
+  },
+  {
+   "m": 32,
+   "st": "4-3",
+   "lv": 31,
+   "gold": 74,
+   "kills": 797,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 959,
+   "hp": 1708
+  },
+  {
+   "m": 33,
+   "st": "4-3",
+   "lv": 31,
+   "gold": 248,
+   "kills": 819,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 959,
+   "hp": 1714
+  },
+  {
+   "m": 34,
+   "st": "4-3",
+   "lv": 31,
+   "gold": 101,
+   "kills": 848,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 965,
+   "hp": 1738
+  },
+  {
+   "m": 35,
+   "st": "4-3",
+   "lv": 31,
+   "gold": 13,
+   "kills": 862,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 969,
+   "hp": 1738
+  },
+  {
+   "m": 36,
+   "st": "4-3",
+   "lv": 31,
+   "gold": 546,
+   "kills": 891,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 969,
+   "hp": 1738
+  },
+  {
+   "m": 37,
+   "st": "4-3",
+   "lv": 31,
+   "gold": 540,
+   "kills": 911,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 979,
+   "hp": 1738
+  },
+  {
+   "m": 38,
+   "st": "4-3",
+   "lv": 31,
+   "gold": 439,
+   "kills": 928,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 979,
+   "hp": 1745
+  },
+  {
+   "m": 39,
+   "st": "4-3",
+   "lv": 32,
+   "gold": 62,
+   "kills": 957,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 991,
+   "hp": 1768
+  },
+  {
+   "m": 40,
+   "st": "4-3",
+   "lv": 32,
+   "gold": 577,
+   "kills": 991,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 991,
+   "hp": 1774
+  },
+  {
+   "m": 41,
+   "st": "4-3",
+   "lv": 32,
+   "gold": 404,
+   "kills": 1006,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 991,
+   "hp": 1785
+  },
+  {
+   "m": 42,
+   "st": "4-3",
+   "lv": 32,
+   "gold": 153,
+   "kills": 1039,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 996,
+   "hp": 1793
+  },
+  {
+   "m": 43,
+   "st": "4-3",
+   "lv": 32,
+   "gold": 377,
+   "kills": 1066,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 1001,
+   "hp": 1793
+  },
+  {
+   "m": 44,
+   "st": "4-3",
+   "lv": 32,
+   "gold": 153,
+   "kills": 1081,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 1001,
+   "hp": 1793
+  },
+  {
+   "m": 45,
+   "st": "4-3",
+   "lv": 33,
+   "gold": 276,
+   "kills": 1109,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 1022,
+   "hp": 1793
+  },
+  {
+   "m": 46,
+   "st": "4-3",
+   "lv": 33,
+   "gold": 413,
+   "kills": 1138,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 1022,
+   "hp": 1800
+  },
+  {
+   "m": 47,
+   "st": "4-3",
+   "lv": 33,
+   "gold": 204,
+   "kills": 1155,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 1022,
+   "hp": 1818
+  },
+  {
+   "m": 48,
+   "st": "4-3",
+   "lv": 33,
+   "gold": 364,
+   "kills": 1185,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 1022,
+   "hp": 1823
+  },
+  {
+   "m": 49,
+   "st": "4-3",
+   "lv": 33,
+   "gold": 530,
+   "kills": 1213,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 1022,
+   "hp": 1829
+  },
+  {
+   "m": 50,
+   "st": "4-3",
+   "lv": 33,
+   "gold": 310,
+   "kills": 1231,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 1022,
+   "hp": 1839
+  },
+  {
+   "m": 51,
+   "st": "4-3",
+   "lv": 33,
+   "gold": 631,
+   "kills": 1265,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 1027,
+   "hp": 1846
+  },
+  {
+   "m": 52,
+   "st": "4-3",
+   "lv": 34,
+   "gold": 431,
+   "kills": 1295,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 1094,
+   "hp": 1955
+  },
+  {
+   "m": 53,
+   "st": "4-4",
+   "lv": 34,
+   "gold": 858,
+   "kills": 1313,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 1201,
+   "hp": 1955
+  },
+  {
+   "m": 54,
+   "st": "4-4",
+   "lv": 34,
+   "gold": 669,
+   "kills": 1335,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 1211,
+   "hp": 1955
+  },
+  {
+   "m": 55,
+   "st": "4-4",
+   "lv": 34,
+   "gold": 419,
+   "kills": 1355,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 1211,
+   "hp": 1962
+  },
+  {
+   "m": 56,
+   "st": "4-4",
+   "lv": 34,
+   "gold": 614,
+   "kills": 1386,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 1211,
+   "hp": 1984
+  },
+  {
+   "m": 57,
+   "st": "4-4",
+   "lv": 34,
+   "gold": 130,
+   "kills": 1410,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 1211,
+   "hp": 1995
+  },
+  {
+   "m": 58,
+   "st": "4-4",
+   "lv": 34,
+   "gold": 220,
+   "kills": 1439,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 1211,
+   "hp": 2005
+  },
+  {
+   "m": 59,
+   "st": "4-4",
+   "lv": 34,
+   "gold": 371,
+   "kills": 1470,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 1217,
+   "hp": 2012
+  },
+  {
+   "m": 60,
+   "st": "4-4",
+   "lv": 34,
+   "gold": 44,
+   "kills": 1486,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 1218,
+   "hp": 2013
+  },
+  {
+   "m": 61,
+   "st": "4-4",
+   "lv": 35,
+   "gold": 142,
+   "kills": 1516,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 1237,
+   "hp": 2013
+  },
+  {
+   "m": 62,
+   "st": "4-4",
+   "lv": 35,
+   "gold": 837,
+   "kills": 1550,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 1248,
+   "hp": 2013
+  },
+  {
+   "m": 63,
+   "st": "4-5",
+   "lv": 35,
+   "gold": 1067,
+   "kills": 1575,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 1248,
+   "hp": 2020
+  },
+  {
+   "m": 64,
+   "st": "4-5",
+   "lv": 35,
+   "gold": 387,
+   "kills": 1587,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 1248,
+   "hp": 2042
+  },
+  {
+   "m": 65,
+   "st": "4-5",
+   "lv": 35,
+   "gold": 243,
+   "kills": 1613,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 1248,
+   "hp": 2047
+  },
+  {
+   "m": 66,
+   "st": "4-5",
+   "lv": 35,
+   "gold": 225,
+   "kills": 1639,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 1248,
+   "hp": 2053
+  },
+  {
+   "m": 67,
+   "st": "4-5",
+   "lv": 35,
+   "gold": 759,
+   "kills": 1652,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 1248,
+   "hp": 2053
+  },
+  {
+   "m": 68,
+   "st": "4-5",
+   "lv": 35,
+   "gold": 1076,
+   "kills": 1677,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 1245,
+   "hp": 2063
+  },
+  {
+   "m": 69,
+   "st": "4-5",
+   "lv": 35,
+   "gold": 711,
+   "kills": 1697,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 1250,
+   "hp": 2070
+  },
+  {
+   "m": 70,
+   "st": "4-5",
+   "lv": 36,
+   "gold": 69,
+   "kills": 1710,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 1265,
+   "hp": 2071
+  },
+  {
+   "m": 71,
+   "st": "4-5",
+   "lv": 36,
+   "gold": 49,
+   "kills": 1739,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 1271,
+   "hp": 2071
+  },
+  {
+   "m": 72,
+   "st": "4-5",
+   "lv": 36,
+   "gold": 1084,
+   "kills": 1766,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 1271,
+   "hp": 2071
+  },
+  {
+   "m": 73,
+   "st": "4-5",
+   "lv": 36,
+   "gold": 233,
+   "kills": 1781,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 1271,
+   "hp": 2071
+  },
+  {
+   "m": 74,
+   "st": "4-5",
+   "lv": 36,
+   "gold": 23,
+   "kills": 1812,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 1282,
+   "hp": 2071
+  },
+  {
+   "m": 75,
+   "st": "4-5",
+   "lv": 36,
+   "gold": 828,
+   "kills": 1833,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 1282,
+   "hp": 2071
+  },
+  {
+   "m": 76,
+   "st": "4-5",
+   "lv": 36,
+   "gold": 1344,
+   "kills": 1846,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 1282,
+   "hp": 2071
+  },
+  {
+   "m": 77,
+   "st": "4-5",
+   "lv": 36,
+   "gold": 145,
+   "kills": 1875,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 1339,
+   "hp": 2133
+  },
+  {
+   "m": 78,
+   "st": "4-5",
+   "lv": 36,
+   "gold": 1374,
+   "kills": 1904,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 1339,
+   "hp": 2133
+  },
+  {
+   "m": 79,
+   "st": "4-5",
+   "lv": 36,
+   "gold": 447,
+   "kills": 1917,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 1339,
+   "hp": 2138
+  },
+  {
+   "m": 80,
+   "st": "4-5",
+   "lv": 36,
+   "gold": 52,
+   "kills": 1942,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 1339,
+   "hp": 2144
+  },
+  {
+   "m": 81,
+   "st": "4-5",
+   "lv": 36,
+   "gold": 1264,
+   "kills": 1972,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 1339,
+   "hp": 2144
+  },
+  {
+   "m": 82,
+   "st": "4-5",
+   "lv": 37,
+   "gold": 518,
+   "kills": 1989,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 1353,
+   "hp": 2155
+  },
+  {
+   "m": 83,
+   "st": "4-5",
+   "lv": 37,
+   "gold": 569,
+   "kills": 2020,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 1358,
+   "hp": 2162
+  },
+  {
+   "m": 84,
+   "st": "4-5",
+   "lv": 37,
+   "gold": 264,
+   "kills": 2049,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 1359,
+   "hp": 2164
+  },
+  {
+   "m": 85,
+   "st": "4-5",
+   "lv": 37,
+   "gold": 954,
+   "kills": 2067,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 1359,
+   "hp": 2164
+  },
+  {
+   "m": 86,
+   "st": "4-5",
+   "lv": 37,
+   "gold": 818,
+   "kills": 2095,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 1366,
+   "hp": 2164
+  },
+  {
+   "m": 87,
+   "st": "4-5",
+   "lv": 37,
+   "gold": 383,
+   "kills": 2124,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 1366,
+   "hp": 2164
+  },
+  {
+   "m": 88,
+   "st": "4-5",
+   "lv": 37,
+   "gold": 1147,
+   "kills": 2143,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 1366,
+   "hp": 2164
+  },
+  {
+   "m": 89,
+   "st": "4-5",
+   "lv": 37,
+   "gold": 675,
+   "kills": 2174,
+   "deaths": 0,
+   "mode": "farm",
+   "pts": 0,
+   "dps": 1376,
+   "hp": 2164
+  },
+  {
+   "m": 90,
+   "st": "4-5",
+   "lv": 37,
+   "gold": 1705,
+   "kills": 2199,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 1376,
+   "hp": 2164
+  }
+ ],
+ "events": [
+  [
+   321,
+   "2지역 진입"
+  ],
+  [
+   652,
+   "3지역 진입"
+  ],
+  [
+   1010,
+   "4지역 진입"
+  ],
+  [
+   1064,
+   "보스 실패(4-1) 시간"
+  ],
+  [
+   1294,
+   "보스 실패(4-2) 시간"
+  ],
+  [
+   1479,
+   "보스 실패(4-2) 시간"
+  ],
+  [
+   1746,
+   "보스 실패(4-3) 시간"
+  ],
+  [
+   1900,
+   "보스 실패(4-3) 시간"
+  ],
+  [
+   2099,
+   "보스 실패(4-3) 시간"
+  ],
+  [
+   2261,
+   "보스 실패(4-3) 시간"
+  ],
+  [
+   2457,
+   "보스 실패(4-3) 시간"
+  ],
+  [
+   2643,
+   "보스 실패(4-3) 시간"
+  ],
+  [
+   2795,
+   "보스 실패(4-3) 시간"
+  ],
+  [
+   2975,
+   "보스 실패(4-3) 시간"
+  ],
+  [
+   3223,
+   "보스 실패(4-4) 시간"
+  ],
+  [
+   3394,
+   "보스 실패(4-4) 시간"
+  ],
+  [
+   3591,
+   "보스 실패(4-4) 시간"
+  ],
+  [
+   3811,
+   "보스 실패(4-5) 시간"
+  ],
+  [
+   4013,
+   "보스 실패(4-5) 시간"
+  ],
+  [
+   4190,
+   "보스 실패(4-5) 시간"
+  ],
+  [
+   4355,
+   "보스 실패(4-5) 시간"
+  ],
+  [
+   4556,
+   "보스 실패(4-5) 시간"
+  ],
+  [
+   4713,
+   "보스 실패(4-5) 시간"
+  ],
+  [
+   4908,
+   "보스 실패(4-5) 시간"
+  ],
+  [
+   5079,
+   "보스 실패(4-5) 시간"
+  ],
+  [
+   5262,
+   "보스 실패(4-5) 시간"
+  ]
+ ],
+ "consoleErrors": [
+  "%cElectron Security Warning (Insecure Content-Security-Policy) font-weight: bold; This renderer process has either no Content Security\n  Policy set or a policy with \"unsafe-eval\" enabled. This exposes"
+ ]
+}

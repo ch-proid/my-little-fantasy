@@ -17,21 +17,29 @@ const JUICE = {
 
 const BAL = {
   stagesPerRegion: 10, regions: 8, killsPerStage: 10, bossTime: 30, respawn: 2,
-  pack: s => Math.min(6, 2 + Math.floor((s - 1) / 4)),              // 한 무리 수: 스테이지가 오를수록 많아진다
-  monHp: s => 14 * Math.pow(1.155, s - 1),
-  monDmg: s => 3 * Math.pow(1.105, s - 1),
-  monDef: s => Math.floor(s * 0.6),
-  monEva: s => Math.floor(s * 1.2),
-  monGold: s => 1.5 * Math.pow(1.1, s - 1),
-  monExp: s => 3 * Math.pow(1.09, s - 1),
+  pack: s => Math.min(8, 3 + Math.floor((s - 1) / 3)),              // 한 무리 수: 3마리부터 8마리까지 (많을수록 생존이 걸려 파밍·레벨·환생이 중요해진다)
+  // 몬스터 성장은 단계마다 지수. 장비도 아이템 레벨마다 지수(데이터/장비.json stats.grow)로 자라서 "그 단계 장비를 끼면 그 단계가 잡힌다"가 유지된다
+  monHp: s => 14 * Math.pow(1.15, s - 1),
+  monDmg: s => 3 * Math.pow(1.08, s - 1),
+  monDef: s => 4 + s * 0.25,                                         // 방어는 완만하게: 피해 × 100/(100+방어×2). 80단계 일반 68%, 보스 58%
+  statPct: { str: 0.015, vit: 0.015 },                               // 힘 1점 = 공격력 +1.5%, 근력 1점 = 체력 +1.5% (후반에도 스탯이 의미 있게 % 배율. 복리로 하면 레벨과 단계가 맞물려 끝없이 폭주해서 직선으로 둔다)
+  monEva: s => 20 + s * 3,                                           // 회피: 지역·역할 배율(EVA_REGION·EVA_ROLE)을 곱한다. 명중률 = hitRate(명중, 회피)
+  hitRate: (acc, eva) => clamp(0.9 + (acc - eva) / 250, 0.4, 0.98),   // 명중 = 회피면 90%, 회피가 100 앞서면 50%. 민첩 1점 = 명중 +2
+  monGold: s => 2.2 * Math.pow(1.1, s - 1),
+  monExp: s => 4.5 * Math.pow(1.09, s - 1),
   expNeed: lv => Math.floor(30 * Math.pow(1.2, lv - 1)),
   ptsPerLv: 3,
   offlineRate: 0.5, offlineCapSec: 8 * 3600, offlineMinSec: 60,
   regenOut: 0.1, regenIn: 0.004, healOnKill: 0.04,                  // 전투 밖 초당 회복, 전투 중 초당 회복, 처치당 회복(최대 체력 비율)
-  drop: 0.09, bossDrops: 2, bagMax: 60,
-  gradeW: [62, 27, 8.5, 2.3, 0.2], bossGradeW: [0, 45, 38, 15, 2],
-  enhCost: lv => Math.ceil(40 * Math.pow(1.22, lv)), enhMax: 30, enhPer: 0.06,
-  abCost: lv => Math.ceil(150 * Math.pow(1.3, lv - 1)), abRoll: lv => Math.ceil(60 * Math.pow(1.17, lv - 1)), abMax: 30, abSlotAt: [1, 10, 20],
+  drop: 0.04, bossDrops: 1, bagMax: 60,                               // 드롭은 빡빡하게: 파밍이 끝 콘텐츠 (처치당 3%, 보스 1개)
+  gradeW: [70, 22, 6.5, 1.3, 0.2], bossGradeW: [0, 60, 30, 9.5, 0.5],
+  // 환생: 8-10 보스를 잡으면(81단계 도달) 할 수 있다. 레벨·스탯·단계·잠그지 않은 장비가 초기화되고 강화·어빌리티·골드·외형·잠근 장비는 남는다.
+  // gradeAt[등급] = 그 등급이 떨어지기 시작하는 환생 횟수, slotAt = 칸이 열리는 환생 횟수. 환생마다 몬스터 체력·피해가 세지고 골드·경험치 보너스가 붙는다.
+  // 환생: 2단계부터 언제든. 그 바퀴의 최고 단계만큼 환생 점수를 받고(ptsPer), 점수 1점마다 영구로 공격·체력 +2%(powerPer), 골드·경험치 +1%(incomePer).
+  // 레벨·스탯·단계·안 잠근 장비가 초기화되고 강화·어빌리티·골드·외형·잠근 장비·환생 점수는 남는다. 막히면 환생 → 파밍 → 더 밀기.
+  rebirth: { minStage: 2, ptsPer: 1, powerPer: 0.02, incomePer: 0.01, gradeAt: [], slotAt: {} },
+  enhCost: lv => Math.ceil(40 * Math.pow(1.4, lv)), enhMax: 30, enhPer: 0.06,
+  abCost: lv => Math.ceil(150 * Math.pow(1.4, lv - 1)), abRoll: lv => Math.ceil(60 * Math.pow(1.17, lv - 1)), abMax: 30, abSlotAt: [1, 10, 20], abGrow: 0.2, // 레벨당 옵션 값 +20% (30레벨 = ×6.8. 0.06이면 같은 골드의 강화보다 4~5배 약했다)
   skillCd: 14, dismantle: g => [2, 8, 30, 120, 500][g],
   critCap: 0.75, aspdCap: 2.5,
 };
@@ -41,25 +49,26 @@ const BAL = {
 // 같은 내용의 복사본 데이터/장비.js(ITEMS_DATA)를 쓴다 — 게임 실행.cmd 로 켜면 저절로, 또는 도구/에셋변환/장비넣기.py 로 새로 만든다.
 const ITEMS = (() => {
   for (const p of ['데이터/장비.json', '../데이터/장비.json']) {
-    try { const x = new XMLHttpRequest(); x.open('GET', p, false); x.send(); if (x.responseText) return JSON.parse(x.responseText); } catch (e) { /* 다음 길로 */ }
+    let txt = ''; try { const x = new XMLHttpRequest(); x.open('GET', p, false); x.send(); txt = x.responseText; } catch (e) { /* 브라우저(file://)는 못 읽는다 — 다음 길로 */ }
+    if (txt) { try { return JSON.parse(txt); } catch (e) { console.error('데이터/장비.json 이 깨졌어요 (복사본 장비.js 로 대신 갑니다):', e.message); } }
   }
   return typeof ITEMS_DATA !== 'undefined' ? ITEMS_DATA : null;
 })();
 const GRADES = (ITEMS ? ITEMS.grades : [
-  { name: '일반', prefix: '일반적인', color: '#ffffff', mul: 1, lines: 0, fx: 1, aura: 0 },
-  { name: '레어', prefix: '희귀한', color: '#4aa8ff', mul: 1.15, lines: 1, fx: 1.1, aura: 0 },
-  { name: '유니크', prefix: '유니크', color: '#ffc83d', mul: 1.35, lines: 2, fx: 1.25, aura: 1 },
-  { name: '레전더리', prefix: '전설의', color: '#ff4d5e', mul: 1.6, lines: 3, fx: 1.4, aura: 2 },
-  { name: '판타지아', prefix: '판타지아', color: '#b48cff', mul: 2.0, lines: 4, fx: 1.6, aura: 3 },
-]).map(g => ({ ...g, n: g.name, c: g.color }));
+  { name: '일반', prefix: '일반적인', color: '#ffffff', stat: { atk: 1, hp: 1, def: 1 }, lines: 0, lineMul: 1, fx: 1, aura: 0 },
+  { name: '레어', prefix: '희귀한', color: '#4aa8ff', stat: { atk: 1.15, hp: 1.15, def: 1.15 }, lines: 1, lineMul: 1.2, fx: 1.1, aura: 0 },
+  { name: '유니크', prefix: '유니크', color: '#ffc83d', stat: { atk: 1.35, hp: 1.35, def: 1.3 }, lines: 2, lineMul: 1.45, fx: 1.25, aura: 1 },
+  { name: '레전더리', prefix: '전설의', color: '#ff4d5e', stat: { atk: 1.6, hp: 1.6, def: 1.5 }, lines: 3, lineMul: 1.75, fx: 1.4, aura: 2 },
+  { name: '판타지아', prefix: '판타지아', color: '#b48cff', stat: { atk: 2.0, hp: 2.0, def: 1.8 }, lines: 4, lineMul: 2.1, fx: 1.6, aura: 3 },
+]).map(g => ({ ...g, n: g.name, c: g.color, stat: g.stat || { atk: g.mul, hp: g.mul, def: g.mul }, lineMul: g.lineMul || 1 }));
 if (ITEMS) { BAL.gradeW = GRADES.map(g => g.drop); BAL.bossGradeW = GRADES.map(g => g.bossDrop); BAL.dismantle = g => GRADES[g].dismantle; }
 const regionSet = r => (ITEMS ? ITEMS.regions[Math.min(ITEMS.regions.length, Math.max(1, r)) - 1] : null);
 
 // ---------- 무기 ----------
 const WEAPONS = {
   sword: { n: '검', aspd: 1.15, mul: 1.0, range: 56, stun: 0.45 }, // 검기가 닿는 곳(용사 앞 56px)의 적을 모두 벤다
-  gun: { n: '엽총', aspd: 0.8, mul: 1.45, range: 190, pierce: 0.6, bleed: 0.25, bleedTime: 3, kb: 10 },
-  wand: { n: '완드', aspd: 0.9, mul: 0.95, range: 210, radius: 38, travel: 0.35 },
+  gun: { n: '엽총', aspd: 0.8, mul: 1.3, range: 190, pierce: 0.6, bleed: 0.3, bleedTicks: 5, bleedCd: 1.5, kb: 10 }, // 출혈: 중첩 없음, 0.5초마다 5번(한 번에 맞은 피해의 30%×0.5초) 끝나면 1.5초 동안 다시 안 걸림
+  wand: { n: '완드', aspd: 0.9, mul: 1.05, range: 210, radius: 38, travel: 0.35 },
 };
 
 // ---------- 장비 칸 ----------
@@ -111,13 +120,28 @@ const REGIONS = [
     props: ['ribs', 'lavaVein', 'crystal', 'brokenStar'], mons: ['dragonling', 'lavaGolem', 'crystalWisp', 'fallenKnight'], boss: 'aurumShade', fanta: ['f_volcano', 'f_dragon', 'f_galaxy'] },
 ];
 
+// ---------- 회피 (명중과 맞선다) ----------
+const EVA_ROLE = { swarm: 1.2, ranged: 1.15, charger: 1.0, tank: 0.7, boss: 0.9 };
+const EVA_REGION = [1, 1, 1.1, 1.2, 1, 1.15, 1.3, 1.1]; // 지역마다: 고블린 고개·호수·축제 산·폐성이 잘 피한다
+const foeEva = (s, role) => BAL.monEva(s) * (EVA_ROLE[role] || 1) * EVA_REGION[regionOf(s) - 1];
+
+// ---------- 스킬트리·펫 자리 (아직 비어 있음) ----------
+// 스킬트리: 무기마다 탭 하나. 노드는 { id, n, cost, lines: [{ k, v }] } 꼴로 두면 stats()의 treeLines()가 그대로 더한다.
+const SKILL_TREE = {
+  sword: { n: '검', concept: '빠른 속도감과 화려함', nodes: [] },
+  gun: { n: '엽총', concept: '단일 대상의 강력한 피해', nodes: [] },
+  wand: { n: '완드', concept: '원거리 다수 타격과 군중 제어', nodes: [] },
+};
+// 펫: { id, n, lines: [{ k, v }] } 꼴. S.pet 에 id를 넣으면 petLines()가 능력치에 더하고, render.js drawPet 자리에 그린다.
+const PETS = [];
+
 // ---------- 몬스터 역할 ----------
 const ROLES = {
   swarm: { hp: 0.7, dmg: 0.7, spd: 34, range: 16, atkIv: 1.1 },
   tank: { hp: 2.3, dmg: 0.9, spd: 18, range: 18, atkIv: 1.6, def: 2 },
   ranged: { hp: 0.8, dmg: 0.85, spd: 26, range: 120, atkIv: 1.8 },
   charger: { hp: 1.0, dmg: 1.3, spd: 52, range: 16, atkIv: 1.3 },
-  boss: { hp: 16, dmg: 1.6, spd: 20, range: 24, atkIv: 1.5, def: 3 },
+  boss: { hp: 16, dmg: 1.2, spd: 20, range: 24, atkIv: 1.5, def: 3 },
 };
 
 // ---------- 어빌리티 ----------

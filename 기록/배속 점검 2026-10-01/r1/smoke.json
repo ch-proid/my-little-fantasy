@@ -1,0 +1,272 @@
+{
+ "param": {
+  "wt": "sword",
+  "minutes": 15,
+  "actEvery": 60,
+  "build": "str",
+  "spend": "mix",
+  "retryAfter": 90,
+  "startStage": 1
+ },
+ "seed": 1,
+ "wall": 57,
+ "gameT": 864,
+ "fed": 900,
+ "hitStopLost": 36,
+ "end": {
+  "stage": "3-3",
+  "stageN": 23,
+  "maxStage": 23,
+  "lv": 22,
+  "gold": 126,
+  "pts": 0,
+  "kills": 326,
+  "mode": "auto",
+  "dps": 731,
+  "hp": 971,
+  "def": 105.9,
+  "atk": 328,
+  "acc": 105,
+  "bag": 9,
+  "enh": {
+   "weapon": 7,
+   "head": 7,
+   "body": 7,
+   "arms": 7,
+   "legs": 7,
+   "feet": 6,
+   "ring1": 6,
+   "neck": 6,
+   "ring2": 6
+  },
+  "abLv": 1,
+  "eqGrades": "424212423"
+ },
+ "deaths": 0,
+ "boss": {
+  "tries": 23,
+  "wins": 22,
+  "failTime": 0,
+  "failDead": 0,
+  "firstWinAt": 54.83333333333278
+ },
+ "regionAt": {
+  "2": 434,
+  "3": 794
+ },
+ "gold": {
+  "earned": 4626,
+  "spent": 4500
+ },
+ "drops": [
+  15,
+  28,
+  22,
+  3,
+  3
+ ],
+ "fantasia": 1,
+ "dismantled": 0,
+ "bagFull": 0,
+ "buys": {
+  "equip": 31,
+  "enh": 59,
+  "ab": 0,
+  "roll": 1
+ },
+ "samples": [
+  {
+   "m": 1,
+   "st": "1-2",
+   "lv": 3,
+   "gold": 31,
+   "kills": 12,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 28,
+   "hp": 130
+  },
+  {
+   "m": 2,
+   "st": "1-3",
+   "lv": 6,
+   "gold": 27,
+   "kills": 29,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 52,
+   "hp": 152
+  },
+  {
+   "m": 3,
+   "st": "1-4",
+   "lv": 7,
+   "gold": 9,
+   "kills": 45,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 60,
+   "hp": 156
+  },
+  {
+   "m": 4,
+   "st": "1-6",
+   "lv": 10,
+   "gold": 33,
+   "kills": 64,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 90,
+   "hp": 182
+  },
+  {
+   "m": 5,
+   "st": "1-7",
+   "lv": 11,
+   "gold": 30,
+   "kills": 85,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 114,
+   "hp": 212
+  },
+  {
+   "m": 6,
+   "st": "1-9",
+   "lv": 13,
+   "gold": 16,
+   "kills": 105,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 140,
+   "hp": 341
+  },
+  {
+   "m": 7,
+   "st": "1-10",
+   "lv": 14,
+   "gold": 6,
+   "kills": 133,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 165,
+   "hp": 326
+  },
+  {
+   "m": 8,
+   "st": "2-2",
+   "lv": 15,
+   "gold": 36,
+   "kills": 155,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 236,
+   "hp": 393
+  },
+  {
+   "m": 9,
+   "st": "2-3",
+   "lv": 16,
+   "gold": 57,
+   "kills": 179,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 249,
+   "hp": 396
+  },
+  {
+   "m": 10,
+   "st": "2-5",
+   "lv": 17,
+   "gold": 57,
+   "kills": 204,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 287,
+   "hp": 506
+  },
+  {
+   "m": 11,
+   "st": "2-7",
+   "lv": 18,
+   "gold": 26,
+   "kills": 224,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 441,
+   "hp": 659
+  },
+  {
+   "m": 12,
+   "st": "2-8",
+   "lv": 19,
+   "gold": 64,
+   "kills": 248,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 493,
+   "hp": 665
+  },
+  {
+   "m": 13,
+   "st": "2-10",
+   "lv": 20,
+   "gold": 7,
+   "kills": 275,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 530,
+   "hp": 777
+  },
+  {
+   "m": 14,
+   "st": "3-2",
+   "lv": 21,
+   "gold": 31,
+   "kills": 301,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 707,
+   "hp": 781
+  },
+  {
+   "m": 15,
+   "st": "3-3",
+   "lv": 22,
+   "gold": 126,
+   "kills": 326,
+   "deaths": 0,
+   "mode": "auto",
+   "pts": 0,
+   "dps": 731,
+   "hp": 971
+  }
+ ],
+ "events": [
+  [
+   434,
+   "2지역 진입"
+  ],
+  [
+   794,
+   "3지역 진입"
+  ]
+ ],
+ "consoleErrors": [
+  "%cElectron Security Warning (Insecure Content-Security-Policy) font-weight: bold; This renderer process has either no Content Security\n  Policy set or a policy with \"unsafe-eval\" enabled. This exposes"
+ ]
+}

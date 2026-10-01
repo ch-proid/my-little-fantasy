@@ -1,0 +1,24 @@
+{
+ "offline": {
+  "hours": 9,
+  "lastSeenAgeAtLoad": 32402,
+  "gold": 21548,
+  "expGained": 38978,
+  "expShown": 0,
+  "expMul": 1,
+  "expectGold": 21549,
+  "expectExp": 38978,
+  "toast": "자리를 비운 8시간 0분 동안 2.1만 골드와 경험치 3.8만을 모았어요. 레벨이 21 올랐어요!",
+  "doubleGrant": 0
+ },
+ "sane": {
+  "stat null": "ok",
+  "없는 어빌리티": "ok",
+  "없는 장비 옵션": "ok",
+  "강화 음수": "ok",
+  "set 깨짐": "ok"
+ },
+ "consoleErrors": [
+  "%cElectron Security Warning (Insecure Content-Security-Policy) font-weight: bold; This renderer process has either no Content Security\n  Policy set or a policy with \"unsafe-eval\" enabled. This exposes"
+ ]
+}

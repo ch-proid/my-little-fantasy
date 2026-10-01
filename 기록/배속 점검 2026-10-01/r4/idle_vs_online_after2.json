@@ -1,0 +1,126 @@
+{
+ "param": {
+  "stages": [
+   10,
+   40,
+   70
+  ],
+  "minutes": 10,
+  "grade": 2,
+  "enh": 10,
+  "lvMul": 0.9
+ },
+ "rows": [
+  {
+   "st": 10,
+   "wt": "sword",
+   "kills": 291,
+   "deaths": 0,
+   "goldPerSec": 1.72,
+   "expPerSec": 3.21,
+   "idleGold": 2.27,
+   "idleExp": 4.19,
+   "ratioGold": 1.33,
+   "ratioExp": 1.31
+  },
+  {
+   "st": 10,
+   "wt": "gun",
+   "kills": 322,
+   "deaths": 0,
+   "goldPerSec": 1.9,
+   "expPerSec": 3.64,
+   "idleGold": 2.05,
+   "idleExp": 3.78,
+   "ratioGold": 1.08,
+   "ratioExp": 1.04
+  },
+  {
+   "st": 10,
+   "wt": "wand",
+   "kills": 376,
+   "deaths": 0,
+   "goldPerSec": 2.22,
+   "expPerSec": 4.1,
+   "idleGold": 2.13,
+   "idleExp": 3.92,
+   "ratioGold": 0.96,
+   "ratioExp": 0.95
+  },
+  {
+   "st": 40,
+   "wt": "sword",
+   "kills": 294,
+   "deaths": 0,
+   "goldPerSec": 30.24,
+   "expPerSec": 45.81,
+   "idleGold": 41.35,
+   "idleExp": 57.92,
+   "ratioGold": 1.37,
+   "ratioExp": 1.26
+  },
+  {
+   "st": 40,
+   "wt": "gun",
+   "kills": 309,
+   "deaths": 0,
+   "goldPerSec": 31.78,
+   "expPerSec": 47.66,
+   "idleGold": 37.01,
+   "idleExp": 51.84,
+   "ratioGold": 1.16,
+   "ratioExp": 1.09
+  },
+  {
+   "st": 40,
+   "wt": "wand",
+   "kills": 408,
+   "deaths": 0,
+   "goldPerSec": 41.97,
+   "expPerSec": 60.53,
+   "idleGold": 44.74,
+   "idleExp": 62.66,
+   "ratioGold": 1.07,
+   "ratioExp": 1.04
+  },
+  {
+   "st": 70,
+   "wt": "sword",
+   "kills": 251,
+   "deaths": 0,
+   "goldPerSec": 450.51,
+   "expPerSec": 499.26,
+   "idleGold": 526.27,
+   "idleExp": 560.49,
+   "ratioGold": 1.17,
+   "ratioExp": 1.12
+  },
+  {
+   "st": 70,
+   "wt": "gun",
+   "kills": 251,
+   "deaths": 0,
+   "goldPerSec": 450.51,
+   "expPerSec": 517.41,
+   "idleGold": 454.37,
+   "idleExp": 483.92,
+   "ratioGold": 1.01,
+   "ratioExp": 0.94
+  },
+  {
+   "st": 70,
+   "wt": "wand",
+   "kills": 172,
+   "deaths": 0,
+   "goldPerSec": 308.72,
+   "expPerSec": 352.16,
+   "idleGold": 380.02,
+   "idleExp": 404.73,
+   "ratioGold": 1.23,
+   "ratioExp": 1.15
+  }
+ ],
+ "consoleErrors": [
+  "%cElectron Security Warning (Insecure Content-Security-Policy) font-weight: bold; This renderer process has either no Content Security\n  Policy set or a policy with \"unsafe-eval\" enabled. This exposes"
+ ]
+}

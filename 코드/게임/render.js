@@ -250,7 +250,7 @@ function render(view) {
   const fs = G.foes.slice().sort((a, b) => b.x - a.x);
   for (const fo of fs) drawFoe(fo);
   if (sk && sk.p.mid) sk.p.mid(st, Sx);
-  drawHero();
+  drawHero(); // 펫 자리: S.pet 이 생기면 여기서 용사 뒤에 그린다 (data.js PETS)
   for (const e of G.fx) e.draw(G.t);
   drawShots();
   if (sk && sk.p.front) sk.p.front(st, Sx);

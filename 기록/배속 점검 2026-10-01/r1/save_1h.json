@@ -1,0 +1,32 @@
+{
+ "offline": {
+  "hours": 1,
+  "lastSeenAgeAtLoad": 3602,
+  "gold": 0,
+  "expGained": 0,
+  "expShown": 0,
+  "expMul": 1.15,
+  "expectGold": 2694,
+  "expectExp": 5603,
+  "toast": "",
+  "doubleGrant": 0
+ },
+ "bag": {
+  "shownUsed": 60,
+  "max": 60,
+  "normalKept": false,
+  "fantasiaKept": false,
+  "fantasiaInBag": false,
+  "goldFromOverflow": 795
+ },
+ "sane": {
+  "stat null": "오류: Cannot set properties of null (setting 'str')",
+  "없는 어빌리티": "오류: Cannot read properties of undefined (reading 'lo')",
+  "없는 장비 옵션": "ok",
+  "강화 음수": "ok",
+  "set 깨짐": "ok"
+ },
+ "consoleErrors": [
+  "%cElectron Security Warning (Insecure Content-Security-Policy) font-weight: bold; This renderer process has either no Content Security\n  Policy set or a policy with \"unsafe-eval\" enabled. This exposes"
+ ]
+}

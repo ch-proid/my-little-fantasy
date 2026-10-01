@@ -1,27 +1,38 @@
 // 데이터/장비.json 의 브라우저용 복사본 (자동 생성 — 고치지 말고 장비.json 을 고친다)
 const ITEMS_DATA = {
  "설명": "장비 데이터. 게임(마리판)이 켜질 때 읽는다. 고친 뒤 게임을 다시 켜면 바뀐다. 이름 = 등급 앞말 + 지역 장비 이름 (예: 일반적인 들판 목검). 그림은 에셋/장비/<folder>/ 의 PNG. 판타지아 무기는 그 지역 스킬(skill)을 쓴다.",
+ "등급표": "stat = 등급별 능력치 배율(공격·체력·방어), lines = 추가 옵션 줄 수, lineMul = 추가 옵션 값 배율, drop/bossDrop = 떨어질 비중. 레전더리는 1번째 환생, 판타지아는 2번째 환생부터 나온다(코드/게임/data.js BAL.rebirth).",
  "grades": [
   {
    "name": "일반",
    "prefix": "일반적인",
    "color": "#ffffff",
-   "mul": 1,
+   "stat": {
+    "atk": 1.0,
+    "hp": 1.0,
+    "def": 1.0
+   },
    "lines": 0,
-   "drop": 62,
+   "lineMul": 1.0,
+   "drop": 70,
    "bossDrop": 0,
    "dismantle": 2,
-   "fx": 1,
+   "fx": 1.0,
    "aura": 0
   },
   {
    "name": "레어",
    "prefix": "희귀한",
    "color": "#4aa8ff",
-   "mul": 1.15,
+   "stat": {
+    "atk": 1.15,
+    "hp": 1.15,
+    "def": 1.15
+   },
    "lines": 1,
-   "drop": 27,
-   "bossDrop": 45,
+   "lineMul": 1.2,
+   "drop": 22,
+   "bossDrop": 60,
    "dismantle": 8,
    "fx": 1.1,
    "aura": 0
@@ -30,10 +41,15 @@ const ITEMS_DATA = {
    "name": "유니크",
    "prefix": "유니크",
    "color": "#ffc83d",
-   "mul": 1.35,
+   "stat": {
+    "atk": 1.35,
+    "hp": 1.35,
+    "def": 1.3
+   },
    "lines": 2,
-   "drop": 8.5,
-   "bossDrop": 38,
+   "lineMul": 1.45,
+   "drop": 6.5,
+   "bossDrop": 30,
    "dismantle": 30,
    "fx": 1.25,
    "aura": 1
@@ -42,10 +58,15 @@ const ITEMS_DATA = {
    "name": "레전더리",
    "prefix": "전설의",
    "color": "#ff4d5e",
-   "mul": 1.6,
+   "stat": {
+    "atk": 1.6,
+    "hp": 1.6,
+    "def": 1.5
+   },
    "lines": 3,
-   "drop": 2.3,
-   "bossDrop": 15,
+   "lineMul": 1.75,
+   "drop": 1.3,
+   "bossDrop": 9.5,
    "dismantle": 120,
    "fx": 1.4,
    "aura": 2
@@ -54,24 +75,29 @@ const ITEMS_DATA = {
    "name": "판타지아",
    "prefix": "판타지아",
    "color": "#b48cff",
-   "mul": 2,
+   "stat": {
+    "atk": 2.0,
+    "hp": 2.0,
+    "def": 1.8
+   },
    "lines": 4,
+   "lineMul": 2.1,
    "drop": 0.2,
-   "bossDrop": 2,
+   "bossDrop": 0.5,
    "dismantle": 500,
    "fx": 1.6,
    "aura": 3
   }
  ],
  "stats": {
-  "설명": "능력치 = (기본 + 아이템 레벨 × 레벨당) × 등급 배율. 아이템 레벨 = 떨어진 스테이지. 방어구는 부위 비중을 한 번 더 곱한다.",
+  "설명": "능력치 = (기본 + 아이템 레벨 × 레벨당) × 등급 배율. 공격력·체력은 여기에 grow^아이템레벨을 한 번 더 곱한다(몬스터 체력이 단계마다 지수로 느는 것을 따라간다). 방어·명중은 직선. 아이템 레벨 = 떨어진 스테이지. 방어구는 부위 비중을 한 번 더 곱한다.",
   "weaponAtk": [
    4,
-   1.7
+   0.1
   ],
   "armorHp": [
-   10,
-   4.5
+   6,
+   0.15
   ],
   "armorDef": [
    1,
@@ -81,17 +107,17 @@ const ITEMS_DATA = {
    "head": 0.8,
    "body": 1.4,
    "arms": 0.7,
-   "legs": 1,
+   "legs": 1.0,
    "feet": 0.7
   },
   "accessory": {
    "atk": [
     2,
-    0.8
+    0.06
    ],
    "hp": [
-    6,
-    2.5
+    1.5,
+    0.04
    ],
    "def": [
     0.6,
@@ -103,7 +129,8 @@ const ITEMS_DATA = {
    ],
    "pick": 2
   },
-  "lineGrow": 0.2
+  "lineGrow": 0.2,
+  "grow": 1.08
  },
  "regions": [
   {

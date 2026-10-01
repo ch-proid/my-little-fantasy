@@ -1,0 +1,32 @@
+{
+ "offline": {
+  "hours": 1,
+  "lastSeenAgeAtLoad": 3602,
+  "gold": 1736,
+  "expGained": 3611,
+  "expShown": 3611,
+  "expMul": 1.15,
+  "expectGold": 1736,
+  "expectExp": 3610,
+  "toast": "자리를 비운 1시간 0분 동안 1736 골드와 경험치 3611을 모았어요. 레벨이 9 올랐어요!",
+  "doubleGrant": 0
+ },
+ "bag": {
+  "shownUsed": 60,
+  "max": 60,
+  "normalKept": false,
+  "fantasiaKept": true,
+  "fantasiaInBag": true,
+  "goldFromOverflow": 45
+ },
+ "sane": {
+  "stat null": "ok",
+  "없는 어빌리티": "ok",
+  "없는 장비 옵션": "ok",
+  "강화 음수": "ok",
+  "set 깨짐": "ok"
+ },
+ "consoleErrors": [
+  "%cElectron Security Warning (Insecure Content-Security-Policy) font-weight: bold; This renderer process has either no Content Security\n  Policy set or a policy with \"unsafe-eval\" enabled. This exposes"
+ ]
+}

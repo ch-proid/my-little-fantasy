@@ -1,0 +1,49 @@
+[
+  {
+    "name": "lateStageDamage",
+    "data": [
+      {
+        "wt": "sword",
+        "characterLevel": 100,
+        "stage": 80,
+        "invGrade": "allFantasia",
+        "allEnhance": 30,
+        "atk": 3019,
+        "dps": 27362,
+        "bossHP": 19689050.475924395,
+        "damagePercent": 0.79,
+        "killed": false,
+        "gameTime": 30.00000000000065,
+        "wallTime": 2.700000047683716
+      },
+      {
+        "wt": "gun",
+        "characterLevel": 100,
+        "stage": 80,
+        "invGrade": "allFantasia",
+        "allEnhance": 30,
+        "atk": 3019,
+        "dps": 27600,
+        "bossHP": 19689050.475924395,
+        "damagePercent": 1.77,
+        "killed": false,
+        "gameTime": 30.00000000000065,
+        "wallTime": 1.3999998569488525
+      },
+      {
+        "wt": "wand",
+        "characterLevel": 100,
+        "stage": 80,
+        "invGrade": "allFantasia",
+        "allEnhance": 30,
+        "atk": 3019,
+        "dps": 20343,
+        "bossHP": 19689050.475924395,
+        "damagePercent": 0.74,
+        "killed": false,
+        "gameTime": 30.00000000000065,
+        "wallTime": 1.0999999046325684
+      }
+    ]
+  }
+]

@@ -27,7 +27,7 @@ function makeFoe(id, x, boss = false) {
   const hp = BAL.monHp(st) * role.hp;
   return {
     uid: G.nextId++, id, d, role: boss ? 'boss' : d.role, boss, x, dy: 0, hp, maxHp: hp,
-    dmg: BAL.monDmg(st) * role.dmg, def: BAL.monDef(st) + (role.def || 0) * st * 0.3, eva: BAL.monEva(st),
+    dmg: BAL.monDmg(st) * role.dmg, def: BAL.monDef(st) + (role.def || 0) * 4, eva: foeEva(st, boss ? 'boss' : d.role),
     spd: role.spd * (0.9 + R() * 0.2), range: role.range, atkIv: role.atkIv, atkT: R() * role.atkIv,
     gold: BAL.monGold(st) * (boss ? 8 : 1), exp: BAL.monExp(st) * (boss ? 6 : 1) * role.hp ** 0.5,
     flash: 0, squash: 0, kbV: 0, stun: 0, dots: [], born: G.t, dieT: -1, lunge: -9, seed: R() * 10,
@@ -50,11 +50,11 @@ function spawnWave() {
 const alive = () => G.foes.filter(f => f.dieT < 0);
 
 // ---------- 피해 ----------
-function hitChance(f) { return clamp(0.82 + (stats().acc - f.eva) / 160, 0.5, 1); }
+function hitChance(f) { return BAL.hitRate(stats().acc, f.eva); }
 function rollDamage(mult = 1, f = null) {
   const s = stats(), crit = R() < s.crit;
   let d = s.atk * s.dmgMul * WEAPONS[s.wt].mul * lerp(s.minD, s.maxD, R()) * (crit ? s.critDmg : 1) * mult;
-  if (f) d *= 100 / (100 + f.def * 4);
+  if (f) d *= 100 / (100 + f.def * 2);
   return { d: Math.max(1, d), crit };
 }
 function pop(x, y, s, c, size, crit = false) { G.pops.push({ x, y, s: String(s), c, size, t0: G.t, crit }); if (G.pops.length > 60) G.pops.shift(); }
@@ -65,12 +65,17 @@ function damageFoe(f, mult = 1, o = {}) {
   f.hp -= d; f.flash = JUICE.flashTime; f.squash = 1;
   if (o.kb) f.kbV = Math.max(f.kbV, o.kb * SIZE[f.sz].kb);
   if (o.stun) f.stun = Math.max(f.stun, o.stun * (f.boss ? 0.3 : 1));
-  if (o.dot) f.dots.push({ k: o.dot, dps: d * (o.dotMul || 0.25), until: G.t + (o.dotTime || 3), next: G.t + 0.5 });
+  if (o.dot) addDot(f, o.dot, d * (o.dotMul || 0.25), o.dotTicks || 4, o.dotCd || 0);
   pop(f.x + (R() - 0.5) * 10, footTop(f) - 6, fmt(d) + (crit ? '!' : ''), crit ? 'gold' : 'text', crit ? 12 : o.small ? 7 : 9, crit);
   if (!o.small && !(crit && foeFx('치명타', f))) foeFx('타격', f);
   if (crit) { G.hitStop = Math.max(G.hitStop, JUICE.critHitStop); G.shake = Math.max(G.shake, JUICE.critShake); }
   else if (!o.small) G.hitStop = Math.max(G.hitStop, JUICE.hitStop);
   if (f.hp <= 0) killFoe(f);
+}
+// 지속 피해(출혈·화상·저주): 같은 종류는 겹치지 않고, 0.5초마다 ticks번 들어간 뒤 cd초 동안 다시 걸리지 않는다
+function addDot(f, k, dps, ticks, cd) {
+  if (f.dots.some(d => d.k === k) || (f.dotCd && f.dotCd[k] > G.t)) return false;
+  f.dots.push({ k, dps, ticks, cd, next: G.t + 0.5 }); return true;
 }
 // 이펙트 에디터에서 만든 도트 이펙트를 자리(slot)에 맞춰 튼다. 그 자리에 정한 이펙트가 없으면 아무것도 안 한다
 function playPixfx(slot, x, yMid, yFoot) {
@@ -94,8 +99,8 @@ function killFoe(f) {
   // 전리품
   const reg = REGIONS[regionOf(S.stage) - 1], rolls = f.boss ? BAL.bossDrops : R() < BAL.drop ? 1 : 0;
   for (let i = 0; i < rolls; i++) {
-    let g = weighted(f.boss ? BAL.bossGradeW : BAL.gradeW);
-    const type = pick(['weapon', 'weapon', 'head', 'body', 'arms', 'legs', 'feet', 'ring', 'neck']);
+    let g = weighted((f.boss ? BAL.bossGradeW : BAL.gradeW).map((w, gi) => (gradeOpen(gi) ? w : 0))); // 아직 안 열린 등급은 안 나온다 (환생)
+    const type = pick(['weapon', 'weapon', 'head', 'body', 'arms', 'legs', 'feet', slotOpen('ring1') || slotOpen('ring2') ? 'ring' : 'weapon', slotOpen('neck') ? 'neck' : 'body']);
     if (g === 4 && type !== 'weapon' && R() < 0.5) g = 3;
     const it = makeItem(type, g, S.stage, { r: regionOf(S.stage) });
     const res = gainItem(it);
@@ -106,7 +111,8 @@ function killFoe(f) {
 }
 function stageClear() {
   const from = regionOf(S.stage);
-  S.stage++; S.maxStage = Math.max(S.maxStage, S.stage); G.count = 0; G.bossWave = false; G.stageFx = G.t;
+  S.stage++; S.maxStage = Math.max(S.maxStage, S.stage); G.count = 0; G.bossWave = false; G.stageFx = G.t; G.deathStreak = 0;
+  if (S.maxStage === BAL.regions * BAL.stagesPerRegion + 1) toast('8지역 우두머리를 쓰러뜨렸어요! 이제 8지역 판타지아 무기를 노려요.');
   if (regionOf(S.stage) !== from) G.regionFx = G.t;
   G.hero.hp = stats().hp;
   for (const f of G.foes) if (f.dieT < 0) f.dieT = G.t; // 남은 부하는 흩어진다(보상 없음)
@@ -124,7 +130,7 @@ function setMode(m) {
   save();
 }
 function goStage(st) {
-  S.stage = clamp(Math.floor(st), 1, S.maxStage); G.count = 0; G.bossWave = false;
+  S.stage = clamp(Math.floor(st), 1, S.maxStage); G.count = 0; G.bossWave = false; G.deathStreak = 0;
   for (const f of G.foes) f.dieT = G.t; G.foes = []; G.shots = []; G.skill = null; G.stageFx = G.t; save();
 }
 
@@ -153,7 +159,7 @@ function heroAttack(targets) {
       sparks(t, t0 + 0.03, ax + 4, GROUND - 12, Math.round(8 * fx), 3, 90 * fx, '#ff7d8f', 0.3, 0, 1.6);
       smoke(t, t0, mx + 4, my, 5, 3, 7, '#b8b0c8', 0.6, [10, -18], 0.4);
     } });
-    damageFoe(a, 1, { kb: W2.kb * 8, dot: 'bleed', dotMul: W2.bleed, dotTime: W2.bleedTime });
+    damageFoe(a, 1, { kb: W2.kb * 8, dot: 'bleed', dotMul: W2.bleed, dotTicks: W2.bleedTicks, dotCd: W2.bleedCd });
     if (b) damageFoe(b, W2.pierce, { kb: W2.kb * 4 });
     return true;
   }
@@ -203,7 +209,7 @@ function updateSkill() {
   }
   while (k.si < k.st.length && k.st[k.si][2] <= t) {
     const [e, kind, a, b] = k.st[k.si++];
-    for (const f of slotFoes(k, e)) if (kind === 'bleed' || kind === 'burn' || kind === 'curse') f.dots.push({ k: kind, dps: stats().hit * 0.2, until: G.t + (b - a), next: G.t + 0.4 });
+    for (const f of slotFoes(k, e)) if (kind === 'bleed' || kind === 'burn' || kind === 'curse') addDot(f, kind, stats().hit * 0.2, Math.max(1, Math.round((b - a) / 0.5)), 0);
     else f.stun = Math.max(f.stun, (b - a) * (f.boss ? 0.3 : 1));
   }
   if (t >= k.p.dur) G.skill = null;
@@ -272,13 +278,13 @@ function update(dt) {
     }
     prevOf[lane] = f;
     // 지속 피해
-    for (const d of f.dots) if (G.t >= d.next && G.t < d.until) { d.next += 0.5; f.hp -= d.dps * 0.5; pop(f.x + 8, footTop(f) - 2, fmt(d.dps * 0.5), d.k === 'bleed' ? '#ff7d8f' : d.k === 'burn' ? '#ffa24d' : '#c8a0ff', 7); if (f.hp <= 0) { killFoe(f); break; } }
-    f.dots = f.dots.filter(d => G.t < d.until);
+    for (const d of f.dots) if (G.t >= d.next && d.ticks > 0) { d.next += 0.5; d.ticks--; f.hp -= d.dps * 0.5; pop(f.x + 8, footTop(f) - 2, fmt(d.dps * 0.5), d.k === 'bleed' ? '#ff7d8f' : d.k === 'burn' ? '#ffa24d' : '#c8a0ff', 7); if (d.ticks <= 0 && d.cd) (f.dotCd = f.dotCd || {})[d.k] = G.t + d.cd; if (f.hp <= 0) { killFoe(f); break; } }
+    f.dots = f.dots.filter(d => d.ticks > 0);
   }
   G.foes = G.foes.filter(f => f.dieT < 0 || G.t - f.dieT < 0.5);
   if (G.foes.length === 0 && G.bossWave) G.bossWave = false;
   // 보스 제한 시간
-  if (G.bossWave && live.some(f => f.boss)) { G.bossT -= dt; if (G.bossT <= 0) bossFail('시간이 다 됐어요. 반복 사냥으로 힘을 길러요.'); }
+  if (G.bossWave && live.some(f => f.boss)) { G.bossT -= dt; if (G.bossT <= 0) bossFail('시간이 다 됐어요. 반복 사냥으로 바꿨어요. 힘을 기른 뒤 위쪽 단계 표시를 누르면 다시 도전해요.'); }
   // 용사 공격 / 스킬
   if (h.state === 'fight' && live.length) {
     G.skillCd -= dt;
@@ -299,13 +305,15 @@ function dust(x, r, n) {
   G.fx.push({ t0, dur: 0.7, draw: t => smoke(t, t0, x, GROUND - 2, r, n, seed, '#c8b89a', 0.7, [0, -6], 0.6) });
 }
 function hurtHero(dmg, big) {
-  const h = G.hero, s = stats(), d = G.god ? 0 : Math.max(1, dmg * 100 / (100 + s.def * 3));
+  const h = G.hero, s = stats(), d = G.god ? 0 : Math.max(1, dmg * 100 / (100 + s.def));
   h.hp -= d; h.flash = 0.1; h.squash = 1; h.lastHurt = G.t;
   pop(HX - 4, GROUND - 46, '-' + fmt(d), '#ff6b6b', 8);
   if (big) G.shake = Math.max(G.shake, JUICE.bossShake * 0.6);
   if (h.hp <= 0) {
     h.hp = 0; h.state = 'dead'; h.deadT = BAL.respawn; G.skill = null;
-    if (G.bossWave) bossFail('쓰러졌어요. 반복 사냥으로 힘을 길러요.'); else G.count = 0;
+    if (G.bossWave) bossFail('쓰러졌어요. 반복 사냥으로 바꿨어요. 힘을 기른 뒤 위쪽 단계 표시를 누르면 다시 도전해요.'); else G.count = 0;
     for (const f of G.foes) if (f.dieT < 0) f.dieT = G.t;
+    G.deathStreak = (G.deathStreak || 0) + 1;
+    if (G.deathStreak >= 3 && S.stage > 1) { const to = S.stage - 1; G.deathStreak = 0; setTimeout(() => { if (S.stage === to + 1) { goStage(to); toast(`계속 쓰러져서 ${stageLabel(to)}(으)로 한 단계 물러났어요. 힘을 기른 뒤 다시 올라가요.`); } }, 0); }
   }
 }

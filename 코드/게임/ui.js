@@ -4,6 +4,7 @@
 // 메뉴 모양: 레퍼런스/UI (왼쪽 세로 탭 · 가운데 판 · 오른쪽 자세히 보기, 밝은 양피지 판 + 금색 주 버튼)
 // Electron에서는 메뉴를 열 때 창이 위·옆으로 늘어난다(preload의 window.bar). 전투 띠는 아래 가운데 그대로.
 // =====================================================================
+let confirmDis = false, confirmRebirth = false; // 가방 "모두 분해"·환생 확인 단계
 let newItems = false, menuOpen = false, tab = 'equip', eqSel = 'weapon', invSel = null, invFilter = 'all', invSort = 'grade', enhSel = 'weapon', lookKind = 'hair', regSel = 0;
 const MENU_H = 400, MENU_W = 760;
 const $ = sel => document.querySelector(sel);
@@ -219,9 +220,9 @@ const typeName = it => (it.t === 'weapon' ? WEAPONS[it.wt].n : SLOTS.find(s => s
 const skillName = it => (it.t === 'weapon' && it.g === 4 && regionSet(it.r) ? regionSet(it.r).fantasia.name : null);
 function itemIconEl(it, size) { const c = itemIcon(it); return c.dataset.wait ? h('span', { className: 'ph' }) : pixImg(c, size); } // 그림을 아직 못 불러왔으면 빈 칸 (불러오면 다시 그린다)
 function slotBtn(sl, sel, onClick, showEnh = true) {
-  const it = itemById(S.eq[sl.id]);
-  return h('button', { className: 'slot' + (sel === sl.id ? ' on' : '') + (it ? ' g' + it.g : ''), title: sl.n, on: { click: onClick } },
-    it ? itemIconEl(it, 30) : h('span', { className: 'empty' }, '+'), h('small', { className: 'sn' }, sl.n), showEnh && S.enh[sl.id] ? h('em', {}, '+' + S.enh[sl.id]) : null);
+  const it = itemById(S.eq[sl.id]), locked = !slotOpen(sl.id);
+  return h('button', { className: 'slot' + (sel === sl.id ? ' on' : '') + (it ? ' g' + it.g : '') + (locked ? ' locked' : ''), title: locked ? `${sl.n}: 환생 ${BAL.rebirth.slotAt[sl.id]}번째에 열려요` : sl.n, on: { click: onClick } },
+    locked ? h('span', { className: 'empty' }, '🔒') : it ? itemIconEl(it, 30) : h('span', { className: 'empty' }, '+'), h('small', { className: 'sn' }, locked ? `환생 ${BAL.rebirth.slotAt[sl.id]}` : sl.n), showEnh && S.enh[sl.id] ? h('em', {}, '+' + S.enh[sl.id]) : null);
 }
 // 오른쪽 판: 아이템 한 개 자세히 (기본 옵션 · 추가 옵션 · 비교)
 function itemDetail(it, enh = 0, cmp = null) {
@@ -254,6 +255,7 @@ function equipView() {
       h('button', { on: { click: () => { cur.lock = !cur.lock; save(); refresh(); } } }, cur.lock ? '잠금 풀기' : '잠금'),
       h('button', { on: { click: () => { unequip(eqSel); refresh(); } } }, '빼기'),
       h('button', { className: 'primary', on: { click: () => { enhSel = eqSel; tab = 'enh'; refresh(); } } }, '강화하기')))
+    : !slotOpen(eqSel) ? h('div', { className: 'sidein empty' }, h('div', { className: 'sub' }, `${slotDef.n} 칸은 ${BAL.rebirth.slotAt[eqSel]}번째 환생 뒤에 열려요. (지금 환생 ${S.rebirth}번)`))
     : h('div', { className: 'sidein empty' }, h('div', { className: 'sub' }, `${slotDef.n} 칸이 비어 있어요.`), h('button', { className: 'primary', on: { click: () => { invFilter = 'slot:' + slotDef.type; tab = 'bag'; refresh(); } } }, '가방에서 고르기'));
   return [main, side];
 }
@@ -266,7 +268,7 @@ function bagView() {
   else if (invFilter === 'acc') list = list.filter(it => it.t === 'ring' || it.t === 'neck');
   else if (invFilter.startsWith('slot:')) list = list.filter(it => it.t === invFilter.slice(5));
   list.sort(invSort === 'grade' ? (a, b) => b.g - a.g || b.lv - a.lv : invSort === 'level' ? (a, b) => b.lv - a.lv || b.g - a.g : (a, b) => b.id - a.id);
-  const used = S.inv.length - Object.keys(S.eq).length;
+  const used = bagUsed();
   const cells = list.map(it => h('button', { className: 'item g' + it.g + (invSel === it.id ? ' on' : ''), title: itemName(it), on: { click: () => { invSel = it.id; refresh(); } } },
     itemIconEl(it, 28), it.isNew ? h('i', { className: 'dot' }) : null, it.lock ? h('em', { className: 'lock' }, '🔒') : null));
   for (let i = cells.length; i < Math.max(15, Math.ceil(cells.length / 5) * 5); i++) cells.push(h('div', { className: 'item empty' }));
@@ -278,7 +280,14 @@ function bagView() {
       h('select', { on: { change: e => { invSort = e.target.value; refresh(); } } }, [['grade', '등급순'], ['level', '레벨순'], ['new', '최근순']].map(([v, n]) => h('option', { value: v, selected: invSort === v }, n)))),
     invFilter.startsWith('slot:') ? h('div', { className: 'sub' }, `${SLOTS.find(s => s.type === invFilter.slice(5)).n} 장비만 보는 중 `, h('button', { className: 'mini', on: { click: () => { invFilter = 'all'; refresh(); } } }, '모두 보기')) : null,
     h('div', { className: 'items scroll' }, cells),
-    h('div', { className: 'autodis' }, h('b', {}, '자동 분해'), GRADES.slice(0, 4).map((g, i) => h('label', {}, h('input', { type: 'checkbox', checked: S.set.autoDis[i], on: { change: e => { S.set.autoDis[i] = e.target.checked; save(); } } }), gradeName(i))), h('small', {}, '판타지아는 분해하지 않아요')));
+    h('div', { className: 'autodis' }, h('b', {}, '자동 분해'), h('div', { className: 'seg' }, [[-1, '없음'], [0, '일반'], [1, '레어'], [2, '유니크'], [3, '레전더리']].map(([v, n]) => h('button', { className: S.set.autoDisMax === v ? 'on' : '', on: { click: () => { S.set.autoDisMax = v; save(); refresh(); } } }, v < 0 ? n : `${n} 이하`))),
+      h('small', {}, S.set.autoDisMax < 0 ? '얻은 장비를 모두 가방에 넣어요. ' : `${GRADES[S.set.autoDisMax].n} 이하 등급은 얻자마자 골드로 바꿔요. `, '판타지아 무기는 분해하지 않고, 가방이 차도 보관해요')),
+    (() => { // 보이는 목록에서 잠금·판타지아 무기를 뺀 것을 한 번에 분해 (한 번 더 눌러 확인)
+      const junk = list.filter(it => !it.lock && !isFantasiaWeapon(it)), gold = junk.reduce((a, it) => a + BAL.dismantle(it.g) * (1 + it.lv * 0.1), 0);
+      if (!junk.length) return null;
+      return h('div', { className: 'btns' }, confirmDis
+        ? [h('span', { className: 'sub' }, `${junk.length}개를 분해하고 `, coinImg(), ` ${fmt(gold)}을 받을까요?`), h('button', { className: 'danger', on: { click: () => { for (const it of junk) dismantle(it); confirmDis = false; invSel = null; toast(`${junk.length}개를 분해해 ${fmt(gold)} 골드를 얻었어요.`); refresh(); } } }, '네, 분해'), h('button', { on: { click: () => { confirmDis = false; refresh(); } } }, '아니요')]
+        : h('button', { on: { click: () => { confirmDis = true; refresh(); } } }, `보이는 장비 모두 분해 (${junk.length}개, 잠금·판타지아 제외)`)); })());
   const sel = invSel && itemById(invSel);
   const side = sel && !isEquipped(sel)
     ? h('div', { className: 'sidein' }, h('div', { className: 'scroll grow' }, itemDetail(sel, 0, true)), h('div', { className: 'btns bottom' },
@@ -298,7 +307,7 @@ function enhView() {
   const side = h('div', { className: 'sidein' },
     h('div', { className: 'ihead' }, h('div', { className: 'ibox' + (it ? ' g' + it.g : '') }, it ? itemIconEl(it, 44) : h('span', { className: 'empty' }, sl.n)),
       h('div', {}, h('div', { className: 'iname' }, it ? gradeSpan(it.g, itemName(it)) : `${sl.n} 칸`), h('div', { className: 'enhbig' }, `+${lv}`, max ? null : h('span', {}, ' → '), max ? null : h('b', {}, `+${lv + 1}`)))),
-    sect('능력치 변화', it ? Object.entries(it.base).map(([k, v]) => h('div', { className: 'kv' }, h('span', {}, STAT_NAMES[k]), h('span', {}, statVal(k, v * a)), h('span', { className: 'arr' }, '→'), h('b', { className: 'plus' }, max ? '최대' : statVal(k, v * b))))
+    sect('능력치 변화', it ? Object.entries(it.base).map(([k, v]) => { const sv = x => (k === 'def' || x < 100 ? x.toFixed(1) : fmt(x)); return h('div', { className: 'kv' }, h('span', {}, STAT_NAMES[k]), h('span', {}, sv(v * a)), h('span', { className: 'arr' }, '→'), h('b', { className: 'plus' }, max ? '최대' : sv(v * b))); })
       : h('div', { className: 'sub' }, '칸에 장비가 없어도 강화할 수 있어요. 끼는 장비에 적용돼요.')),
     h('div', { className: 'grow' }),
     h('div', { className: 'kv cost' }, h('span', {}, '강화 비용'), h('b', {}, coinImg(), ' ', max ? '-' : fmt(cost))),
@@ -317,10 +326,13 @@ function charView() {
     h('div', { className: 'stattop' }, pv, h('div', { className: 'grow' },
       h('div', { className: 'expbar' }, h('i', { style: { width: pct + '%' } }), h('span', {}, `EXP ${pct.toFixed(2)}%`)),
       h('div', { className: 'ptsbox' }, h('span', {}, '남은 포인트'), h('b', {}, S.pts)),
-      h('button', { on: { click: () => { resetStats(); refresh(); } } }, '초기화 (무료)'))),
-    row('str', '힘', '공격력 증가', '1당 공격력 +1.5'), row('vit', '근력', '체력 · 방어력 증가', '1당 체력 +12'), row('dex', '민첩', '명중 · 최대 데미지 증가', '1당 명중 +2'));
+      h('div', { className: 'btns' }, h('button', { className: 'primary', disabled: S.pts < 1, on: { click: () => { autoSpend(); refresh(); } } }, '자동 분배'), h('button', { on: { click: () => { resetStats(); refresh(); } } }, '초기화 (무료)')),
+      h('small', { className: 'sub' }, '자동 분배: 명중이 모자라면 민첩, 아니면 힘 2 : 근력 1'))),
+    row('str', '힘', '공격력 증가', `1당 공격력 +${BAL.statPct.str * 100}%`), row('vit', '근력', '체력 · 방어력 증가', `1당 체력 +${BAL.statPct.vit * 100}%`), row('dex', '민첩', '명중 · 최대 데미지 증가', '1당 명중 +2'),
+    S.rbPts ? h('div', { className: 'sub' }, `환생 점수 ${S.rbPts}: 공격·체력 ×${rbPower().toFixed(2)}, 골드·경험치 ×${rbIncome().toFixed(2)}`) : null);
   const side = h('div', { className: 'sidein scroll' }, ptitle('최종 능력치'),
     kvRow('공격력', fmt(s.atk)), kvRow('체력', fmt(s.hp)), kvRow('방어력', s.def.toFixed(1)), kvRow('명중', fmt(s.acc)),
+    kvRow('명중률(이 단계)', Math.round(BAL.hitRate(s.acc, foeEva(S.stage, 'swarm')) * 100) + '%'),
     kvRow('치명타 확률', (s.crit * 100).toFixed(1) + '%'), kvRow('치명타 피해', Math.round(s.critDmg * 100) + '%'),
     kvRow('공격 속도', s.aspd.toFixed(2) + '회/초'), kvRow('데미지', '+' + Math.round((s.dmgMul - 1) * 100) + '%'),
     kvRow('데미지 범위', `${Math.round(s.minD * 100)}~${Math.round(s.maxD * 100)}%`), kvRow('초당 피해(예상)', fmt(s.dps)),
@@ -369,7 +381,13 @@ function lookView() {
 // ---------- 사냥터 ----------
 function regionView() {
   const maxR = regionOf(S.maxStage), here = regionOf(S.stage); if (!regSel) regSel = here;
-  const main = h('div', {}, ptitle('사냥터'),
+  const rbCard = canRebirth()
+    ? h('div', { className: 'rebirth' }, h('b', {}, `환생 ${S.rebirth + 1}번째 · 지금 환생하면 점수 +${rebirthGain()}`),
+      h('div', { className: 'sub' }, `환생 점수는 이번 바퀴 최고 단계(${S.maxStage})만큼 받아요. 1점마다 영구로 공격·체력 +${BAL.rebirth.powerPer * 100}%, 골드·경험치 +${BAL.rebirth.incomePer * 100}%. 지금 ${S.rbPts}점 (공격·체력 ×${rbPower().toFixed(2)}). 레벨·스탯·단계와 잠그지 않은 장비는 처음으로 돌아가고, 강화·어빌리티·골드·외형·잠근 장비는 남아요. 아끼는 장비는 먼저 잠가요.`),
+      confirmRebirth ? h('div', { className: 'btns' }, h('button', { className: 'danger', on: { click: () => { confirmRebirth = false; doRebirth(); regSel = 1; toast(`${S.rebirth}번째 환생! 새 모험이 시작돼요.`); refresh(); } } }, '네, 환생해요'), h('button', { on: { click: () => { confirmRebirth = false; refresh(); } } }, '아니요'))
+        : h('button', { className: 'primary', on: { click: () => { confirmRebirth = true; refresh(); } } }, '환생하기'))
+    : null;
+  const main = h('div', {}, ptitle('사냥터', h('small', {}, S.rebirth ? `환생 ${S.rebirth}번` : null)), rbCard,
     h('div', { className: 'reglist scroll' }, REGIONS.map((reg, i) => {
       const r = i + 1, open = r <= maxR;
       const pic = pixImg(sceneCanvas(r, 90, 34), 0); pic.style.width = '90px'; pic.style.height = '34px';
@@ -378,7 +396,8 @@ function regionView() {
         here === r ? h('span', { className: 'chip gold' }, '현재 ', stageLabel(S.stage)) : open ? h('span', { className: 'chip green' }, '선택 가능') : h('span', { className: 'chip' }, '🔒'));
     })));
   const r = regSel, reg = REGIONS[r - 1], open = r <= maxR, set = regionSet(r);
-  const first = (r - 1) * BAL.stagesPerRegion + 1, stages = Array.from({ length: 10 }, (_, j) => first + j).filter(st => st <= S.maxStage);
+  const first = (r - 1) * BAL.stagesPerRegion + 1, lastSt = r === BAL.regions ? Math.max(first + BAL.stagesPerRegion - 1, S.maxStage) : first + BAL.stagesPerRegion - 1; // 마지막 지역은 80단계 뒤로 이어진다
+  const stages = Array.from({ length: lastSt - first + 1 }, (_, j) => first + j).filter(st => st <= S.maxStage);
   const pic = pixImg(sceneCanvas(r, 110, 40), 0); pic.style.width = '100%'; pic.style.height = 'auto';
   const mons = [...reg.mons.slice(0, 4), reg.boss].map(id => { const a = forgeArt(MON[id]); return a ? h('div', { className: 'mon' }, pixImg(a.c, 26)) : null; });
   const drops = set ? ['sword', 'gun', 'wand', 'head', 'body'].map(k => { const it = { t: WEAPONS[k] ? 'weapon' : k, wt: k, r, g: 0 }; return h('div', { className: 'drop', title: `${set.items[k]}` }, itemIconEl(it, 24)); }) : [];
@@ -386,7 +405,7 @@ function regionView() {
     ptitle(reg.n, stages.length ? h('select', { on: { change: e => { goStage(+e.target.value); refresh(); } } }, stages.map(st => h('option', { value: st, selected: st === S.stage }, stageLabel(st)))) : null),
     h('div', { className: 'scroll grow' }, h('div', { className: 'sub' }, reg.hint), pic,
     sect('등장 몬스터', h('div', { className: 'icons' }, mons)),
-    set ? sect('주요 드롭', h('div', { className: 'icons' }, drops), h('small', {}, `${set.set} 세트 · 판타지아: ${set.fantasia.name}`)) : null,
+    set ? sect('주요 드롭', h('div', { className: 'icons' }, drops), h('small', { style: { display: 'block', whiteSpace: 'normal' } }, `${set.set} 세트 · 판타지아: ${set.fantasia.name}`)) : null,
     sect('사냥 방식', h('div', { className: 'seg' }, h('button', { className: S.mode === 'auto' ? 'on' : '', on: { click: () => { setMode('auto'); refresh(); } } }, '자동 진행'), h('button', { className: S.mode === 'farm' ? 'on' : '', on: { click: () => { setMode('farm'); refresh(); } } }, '반복 사냥')),
       h('div', { className: 'kv' }, h('span', {}, '일반 몬스터'), h('b', {}, `${Math.min(G.count, BAL.killsPerStage)} / ${BAL.killsPerStage}`)))),
     h('div', { className: 'btns bottom' }, h('button', { className: 'primary', disabled: here === r, on: { click: () => { goStage(stages[stages.length - 1] || first); refresh(); } } }, here === r ? '이곳에서 사냥 중' : '이곳에서 사냥'),

@@ -1,0 +1,12 @@
+{"name":"startup","data":{"title":"title","paused":true,"scripts":30,"regions":8,"monsters":50,"activeMonsters":41,"skills":[6,6,6],"parts":{"hair":11,"top":4,"bottom":3,"costume":11},"gearLoaded":159}}
+{"name":"newGame","data":{"name":"탐색시험","weapon":"gun","starter":1,"heroHP":60}}
+{"name":"menus","data":[{"tab":"equip","content":134},{"tab":"char","content":260},{"tab":"bag","content":115},{"tab":"enh","content":151},{"tab":"ability","content":214},{"tab":"look","content":120},{"tab":"region","content":296},{"tab":"set","content":119}]}
+{"name":"saveRoundTrip","data":{"same":true,"name":"탐색시험","items":1}}
+{"name":"offlineDirect","data":{"seconds":3600,"gold":901,"exp":1803}}
+{"name":"offlineExpBonus","data":{"factor":1.15,"reportedExp":2073,"actualExp":2383.95,"actualVsReported":1.15}}
+{"name":"seedReload","data":{"age":3600}}
+{"name":"offlineReload","data":{"ageAtTitle":0.022,"goldGain":0,"toast":""}}
+{"name":"singleFoeReach","data":{"count":123,"failed":[],"maxTime":27.7}}
+{"name":"skillsByRegionWeapon","data":{"count":24,"failed":[],"unique":["f_sakura","f_forest","f_crow","f_bubble","f_dawn","f_frost","f_moon","f_dragon"],"samples":360}}
+{"name":"edgeCases","data":{"fullBagFantasia":{"res":{"dismantled":550},"kept":false},"stage81":{"label":"8-11","region":8},"stat":"Cannot set properties of null (setting 'str')","ab":"Cannot read properties of undefined (reading 'lo')","set":"accepted"}}
+{"name":"runtimeErrors","data":{"errors":[],"warnings":[],"badRequests":[]}}
